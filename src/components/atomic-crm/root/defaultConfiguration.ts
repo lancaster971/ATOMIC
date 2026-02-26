@@ -1,4 +1,4 @@
-import type { ConfigurationContextValue } from "./ConfigurationContext";
+import type { ConfigurationContextValue, LDAPConfig } from "./ConfigurationContext";
 
 export const defaultDarkModeLogo = "./logos/logo_atomic_crm_dark.svg";
 export const defaultLightModeLogo = "./logos/logo_atomic_crm_light.svg";
@@ -57,6 +57,20 @@ export const defaultTaskTypes = [
   { value: "call", label: "Call" },
 ];
 
+export const defaultLDAPConfig: LDAPConfig = {
+  enabled: false,
+  url: import.meta.env.VITE_LDAP_URL || "",
+  baseDN: import.meta.env.VITE_LDAP_BASE_DN || "",
+  userSearchFilter: import.meta.env.VITE_LDAP_USER_SEARCH_FILTER || "(userPrincipalName={username})",
+  usernameAttribute: import.meta.env.VITE_LDAP_USERNAME_ATTRIBUTE || "userPrincipalName",
+  tlsEnabled: import.meta.env.VITE_LDAP_TLS_ENABLED === "true" || true,
+  tlsRejectUnauthorized: import.meta.env.VITE_LDAP_TLS_REJECT_UNAUTHORIZED !== "false",
+  serviceAccountDN: import.meta.env.VITE_LDAP_SERVICE_ACCOUNT_DN || "",
+  serviceAccountPassword: import.meta.env.VITE_LDAP_SERVICE_ACCOUNT_PASSWORD || "",
+  autoCreateUsers: true,
+  defaultRole: "user",
+};
+
 export const defaultConfiguration: ConfigurationContextValue = {
   companySectors: defaultCompanySectors,
   dealCategories: defaultDealCategories,
@@ -67,4 +81,8 @@ export const defaultConfiguration: ConfigurationContextValue = {
   title: defaultTitle,
   darkModeLogo: defaultDarkModeLogo,
   lightModeLogo: defaultLightModeLogo,
+  googleWorkplaceDomain: import.meta.env.VITE_GOOGLE_WORKPLACE_DOMAIN || "",
+  disableEmailPasswordAuthentication: import.meta.env.VITE_DISABLE_EMAIL_PASSWORD_AUTHENTICATION === "true",
+  inboundEmail: import.meta.env.VITE_INBOUND_EMAIL || "",
+  ldapConfig: defaultLDAPConfig,
 };

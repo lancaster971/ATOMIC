@@ -1,7 +1,14 @@
-import { RotateCcw, Save } from "lucide-react";
+import { RotateCcw, Save, Copy, Check } from "lucide-react";
 import type { RaRecord } from "ra-core";
-import { EditBase, Form, useGetList, useInput, useNotify } from "ra-core";
-import { useCallback, useMemo } from "react";
+import {
+  EditBase,
+  Form,
+  useGetList,
+  useInput,
+  useNotify,
+  useTranslate,
+} from "ra-core";
+import { useCallback, useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,12 +26,13 @@ import {
 } from "../root/ConfigurationContext";
 import { defaultConfiguration } from "../root/defaultConfiguration";
 
-const SECTIONS = [
-  { id: "branding", label: "Branding" },
-  { id: "companies", label: "Companies" },
-  { id: "deals", label: "Deals" },
-  { id: "notes", label: "Notes" },
-  { id: "tasks", label: "Tasks" },
+const SECTION_KEYS: { id: string; labelKey: string }[] = [
+  { id: "branding", labelKey: "crm.settings.branding" },
+  { id: "companies", labelKey: "crm.settings.companies" },
+  { id: "deals", labelKey: "crm.settings.deals" },
+  { id: "notes", labelKey: "crm.settings.notes" },
+  { id: "tasks", labelKey: "crm.settings.tasks" },
+  { id: "authentication", labelKey: "crm.settings.authentication" },
 ];
 
 /** Ensure every item in a { value, label } array has a value (slug from label). */
@@ -83,12 +91,17 @@ const transformFormValues = (data: Record<string, any>) => ({
     dealStages: ensureValues(data.dealStages),
     dealPipelineStatuses: data.dealPipelineStatuses,
     noteStatuses: ensureValues(data.noteStatuses),
+    googleWorkplaceDomain: data.googleWorkplaceDomain,
+    disableEmailPasswordAuthentication: data.disableEmailPasswordAuthentication,
+    inboundEmail: data.inboundEmail,
+    ldapConfig: data.ldapConfig,
   } as ConfigurationContextValue,
 });
 
 export const SettingsPage = () => {
   const updateConfiguration = useConfigurationUpdater();
   const notify = useNotify();
+  const translate = useTranslate();
 
   return (
     <EditBase
@@ -100,10 +113,10 @@ export const SettingsPage = () => {
       mutationOptions={{
         onSuccess: (data: any) => {
           updateConfiguration(data.config);
-          notify("Configuration saved successfully");
+          notify(translate("crm.settings.saved"));
         },
         onError: () => {
-          notify("Failed to save configuration", { type: "error" });
+          notify(translate("crm.settings.save_error"), { type: "error" });
         },
       }}
     >
@@ -128,6 +141,22 @@ const SettingsForm = () => {
       dealStages: config.dealStages,
       dealPipelineStatuses: config.dealPipelineStatuses,
       noteStatuses: config.noteStatuses,
+      googleWorkplaceDomain: config.googleWorkplaceDomain || "",
+      disableEmailPasswordAuthentication: config.disableEmailPasswordAuthentication || false,
+      inboundEmail: config.inboundEmail || "",
+      ldapConfig: config.ldapConfig || {
+        enabled: false,
+        url: "",
+        baseDN: "",
+        userSearchFilter: "(userPrincipalName={username})",
+        usernameAttribute: "userPrincipalName",
+        tlsEnabled: true,
+        tlsRejectUnauthorized: true,
+        serviceAccountDN: "",
+        serviceAccountPassword: "",
+        autoCreateUsers: true,
+        defaultRole: "user",
+      },
     }),
     [config],
   );
@@ -146,6 +175,7 @@ const SettingsFormFields = () => {
     reset,
     formState: { isSubmitting },
   } = useFormContext();
+  const translate = useTranslate();
 
   const dealStages = watch("dealStages");
   const dealPipelineStatuses: string[] = watch("dealPipelineStatuses") ?? [];
@@ -171,8 +201,10 @@ const SettingsFormFields = () => {
       {/* Left navigation */}
       <nav className="hidden md:block w-48 shrink-0">
         <div className="sticky top-4 space-y-1">
-          <h1 className="text-2xl font-semibold px-3 mb-2">Settings</h1>
-          {SECTIONS.map((section) => (
+          <h1 className="text-2xl font-semibold px-3 mb-2">
+            {translate("crm.settings.title")}
+          </h1>
+          {SECTION_KEYS.map((section) => (
             <button
               key={section.id}
               type="button"
@@ -183,7 +215,7 @@ const SettingsFormFields = () => {
               }}
               className="block w-full text-left px-3 py-1 text-sm rounded-md hover:text-foreground hover:bg-muted transition-colors"
             >
-              {section.label}
+              {translate(section.labelKey)}
             </button>
           ))}
         </div>
@@ -195,12 +227,14 @@ const SettingsFormFields = () => {
         <Card id="branding">
           <CardContent className="space-y-4">
             <h2 className="text-xl font-semibold text-muted-foreground">
-              Branding
+              {translate("crm.settings.branding")}
             </h2>
-            <TextInput source="title" label="App Title" />
+            <TextInput source="title" label={translate("crm.settings.app_title")} />
             <div className="flex gap-8">
               <div className="flex flex-col items-center gap-1">
-                <p className="text-sm text-muted-foreground">Light Mode Logo</p>
+                <p className="text-sm text-muted-foreground">
+                  {translate("crm.settings.light_mode_logo")}
+                </p>
                 <ImageEditorField
                   source="lightModeLogo"
                   width={100}
@@ -210,7 +244,9 @@ const SettingsFormFields = () => {
                 />
               </div>
               <div className="flex flex-col items-center gap-1">
-                <p className="text-sm text-muted-foreground">Dark Mode Logo</p>
+                <p className="text-sm text-muted-foreground">
+                  {translate("crm.settings.dark_mode_logo")}
+                </p>
                 <ImageEditorField
                   source="darkModeLogo"
                   width={100}
@@ -227,10 +263,10 @@ const SettingsFormFields = () => {
         <Card id="companies">
           <CardContent className="space-y-4">
             <h2 className="text-xl font-semibold text-muted-foreground">
-              Companies
+              {translate("crm.settings.companies")}
             </h2>
             <h3 className="text-lg font-medium text-muted-foreground">
-              Sectors
+              {translate("crm.settings.sectors")}
             </h3>
             <ArrayInput
               source="companySectors"
@@ -248,10 +284,10 @@ const SettingsFormFields = () => {
         <Card id="deals">
           <CardContent className="space-y-4">
             <h2 className="text-xl font-semibold text-muted-foreground">
-              Deals
+              {translate("crm.settings.deals")}
             </h2>
             <h3 className="text-lg font-medium text-muted-foreground">
-              Stages
+              {translate("crm.settings.stages")}
             </h3>
             <ArrayInput
               source="dealStages"
@@ -267,11 +303,10 @@ const SettingsFormFields = () => {
             <Separator />
 
             <h3 className="text-lg font-medium text-muted-foreground">
-              Pipeline Statuses
+              {translate("crm.settings.pipeline_statuses")}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Select which deal stages count as &quot;pipeline&quot; (completed)
-              deals.
+              {translate("crm.settings.pipeline_description")}
             </p>
             <div className="flex flex-wrap gap-2">
               {dealStages?.map(
@@ -309,7 +344,7 @@ const SettingsFormFields = () => {
             <Separator />
 
             <h3 className="text-lg font-medium text-muted-foreground">
-              Categories
+              {translate("crm.settings.categories")}
             </h3>
             <ArrayInput
               source="dealCategories"
@@ -328,10 +363,10 @@ const SettingsFormFields = () => {
         <Card id="notes">
           <CardContent className="space-y-4">
             <h2 className="text-xl font-semibold text-muted-foreground">
-              Notes
+              {translate("crm.settings.notes")}
             </h2>
             <h3 className="text-lg font-medium text-muted-foreground">
-              Statuses
+              {translate("crm.settings.statuses")}
             </h3>
             <ArrayInput source="noteStatuses" label={false} helperText={false}>
               <SimpleFormIterator inline disableReordering disableClear>
@@ -346,9 +381,11 @@ const SettingsFormFields = () => {
         <Card id="tasks">
           <CardContent className="space-y-4">
             <h2 className="text-xl font-semibold text-muted-foreground">
-              Tasks
+              {translate("crm.settings.tasks")}
             </h2>
-            <h3 className="text-lg font-medium text-muted-foreground">Types</h3>
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {translate("crm.settings.types")}
+            </h3>
             <ArrayInput source="taskTypes" label={false} helperText={false}>
               <SimpleFormIterator disableReordering disableClear>
                 <TextInput source="label" label={false} />
@@ -356,6 +393,9 @@ const SettingsFormFields = () => {
             </ArrayInput>
           </CardContent>
         </Card>
+
+        {/* Authentication */}
+        <LDAPConfigSection />
       </div>
 
       {/* Sticky save button */}
@@ -377,7 +417,7 @@ const SettingsFormFields = () => {
               }
             >
               <RotateCcw className="h-4 w-4 mr-1" />
-              Reset to Defaults
+              {translate("crm.settings.reset_to_defaults")}
             </Button>
             <div className="flex gap-2">
               <Button
@@ -385,17 +425,283 @@ const SettingsFormFields = () => {
                 variant="outline"
                 onClick={() => window.history.back()}
               >
-                Cancel
+                {translate("crm.settings.cancel")}
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 <Save className="h-4 w-4 mr-1" />
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting
+                  ? translate("crm.settings.saving")
+                  : translate("crm.settings.save")}
               </Button>
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+};
+
+/** LDAP Configuration Section Component */
+const LDAPConfigSection = () => {
+  const translate = useTranslate();
+  const { watch, setValue } = useFormContext();
+  const ldapConfig = watch("ldapConfig");
+  const notify = useNotify();
+  const [testing, setTesting] = useState(false);
+
+  const updateLdapField = (field: string, value: any) => {
+    setValue("ldapConfig", { ...ldapConfig, [field]: value }, { shouldDirty: true });
+  };
+
+  const handleTestConnection = async () => {
+    setTesting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ldap-auth/test`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${import.meta.env.VITE_SB_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ config: ldapConfig }),
+      });
+
+      if (response.ok) {
+        notify("LDAP connection successful", { type: "success" });
+      } else {
+        const error = await response.json();
+        notify(error.message || "Connection failed", { type: "error" });
+      }
+    } catch (error) {
+      notify("Failed to test connection", { type: "error" });
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  return (
+    <Card id="authentication">
+      <CardContent className="space-y-4">
+        <h2 className="text-xl font-semibold text-muted-foreground">
+          {translate("crm.settings.authentication")}
+        </h2>
+        
+        {/* SSO Section */}
+        <h3 className="text-lg font-medium text-muted-foreground">
+          SSO Configuration
+        </h3>
+        <TextInput
+          source="googleWorkplaceDomain"
+          label="SSO Domain"
+          helperText="Domain for SSO authentication (e.g., company.com). Requires SAML configuration in Supabase."
+        />
+        
+        <Separator />
+        
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-medium text-muted-foreground">
+              Disable Email/Password Login
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              When enabled, users can only sign in via SSO or LDAP.
+            </p>
+          </div>
+          <SwitchInput source="disableEmailPasswordAuthentication" />
+        </div>
+        
+        <Separator />
+        
+        {/* LDAP Section */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-medium text-muted-foreground">
+              LDAP / Active Directory
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Enable LDAP authentication for Active Directory or Azure AD DS.
+            </p>
+          </div>
+          <SwitchInput source="ldapConfig.enabled" />
+        </div>
+
+        {ldapConfig?.enabled && (
+          <div className="space-y-4 pl-4 border-l-2 border-muted mt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <TextInput
+                source="ldapConfig.url"
+                label="LDAP Server URL"
+                helperText="e.g., ldap://ad.company.com or ldaps://ad.company.com:636"
+              />
+              <TextInput
+                source="ldapConfig.baseDN"
+                label="Base DN"
+                helperText="e.g., DC=company,DC=com"
+              />
+            </div>
+
+            <TextInput
+              source="ldapConfig.userSearchFilter"
+              label="User Search Filter"
+              helperText="Use {username} as placeholder. e.g., (userPrincipalName={username}) or (sAMAccountName={username})"
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <TextInput
+                source="ldapConfig.usernameAttribute"
+                label="Username Attribute"
+                helperText="e.g., userPrincipalName or sAMAccountName"
+              />
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={ldapConfig?.tlsEnabled ?? true}
+                    onChange={(e) => updateLdapField("tlsEnabled", e.target.checked)}
+                  />
+                  Enable TLS/SSL
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={ldapConfig?.tlsRejectUnauthorized ?? true}
+                    onChange={(e) => updateLdapField("tlsRejectUnauthorized", e.target.checked)}
+                  />
+                  Verify Certificate
+                </label>
+              </div>
+            </div>
+
+            <Separator />
+
+            <h4 className="text-md font-medium text-muted-foreground">
+              Service Account (Optional)
+            </h4>
+            <p className="text-sm text-muted-foreground">
+              Used to search for users before authentication. If not provided, direct bind is attempted.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <TextInput
+                source="ldapConfig.serviceAccountDN"
+                label="Service Account DN"
+                helperText="e.g., CN=ServiceAccount,DC=company,DC=com"
+              />
+              <TextInput
+                source="ldapConfig.serviceAccountPassword"
+                label="Service Account Password"
+                type="password"
+                helperText="Password for the service account"
+              />
+            </div>
+
+            <Separator />
+
+            <h4 className="text-md font-medium text-muted-foreground">
+              User Provisioning
+            </h4>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={ldapConfig?.autoCreateUsers ?? true}
+                  onChange={(e) => updateLdapField("autoCreateUsers", e.target.checked)}
+                />
+                Auto-create users on first login
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Default role for new users:</span>
+              <select
+                value={ldapConfig?.defaultRole || "user"}
+                onChange={(e) => updateLdapField("defaultRole", e.target.value)}
+                className="text-sm border rounded px-2 py-1"
+              >
+                <option value="user">User</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </div>
+
+            <div className="flex gap-2 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleTestConnection}
+                disabled={testing || !ldapConfig?.url}
+              >
+                {testing ? "Testing..." : "Test Connection"}
+              </Button>
+            </div>
+          </div>
+        )}
+        
+        <Separator />
+        
+        {/* Inbound Email Section */}
+        <h3 className="text-lg font-medium text-muted-foreground">
+          Inbound Email
+        </h3>
+        <div className="flex gap-2 items-start">
+          <div className="flex-1">
+            <TextInput
+              source="inboundEmail"
+              label="Inbound Email Address"
+              helperText="Email address for receiving notes via email (e.g., xxxx@inbound.postmarkapp.com)"
+            />
+          </div>
+          <InboundEmailCopyButton />
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+/** A switch/toggle input compatible with ra-core's useInput. */
+const SwitchInput = ({ source }: { source: string }) => {
+  const { field } = useInput({ source });
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={field.value}
+      onClick={() => field.onChange(!field.value)}
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+        field.value ? "bg-primary" : "bg-input"
+      }`}
+    >
+      <span
+        className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${
+          field.value ? "translate-x-5" : "translate-x-0"
+        }`}
+      />
+    </button>
+  );
+};
+
+/** Copy button for inbound email address. */
+const InboundEmailCopyButton = () => {
+  const { field } = useInput({ source: "inboundEmail" });
+  const [copied, setCopied] = useState(false);
+  
+  const handleCopy = () => {
+    if (field.value) {
+      navigator.clipboard.writeText(field.value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
+  
+  if (!field.value) return null;
+  
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="icon"
+      onClick={handleCopy}
+      className="mt-8"
+      title="Copy to clipboard"
+    >
+      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+    </Button>
   );
 };
 

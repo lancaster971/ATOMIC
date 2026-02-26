@@ -47,6 +47,7 @@ import {
   defaultNoteStatuses,
   defaultTaskTypes,
   defaultTitle,
+  defaultConfiguration,
 } from "./defaultConfiguration";
 import { i18nProvider } from "./i18nProvider";
 import { StartPage } from "../login/StartPage.tsx";
@@ -118,9 +119,10 @@ export const CRM = ({
   dataProvider = defaultDataProvider,
   authProvider = defaultAuthProvider,
   store = defaultStore,
-  googleWorkplaceDomain = import.meta.env.VITE_GOOGLE_WORKPLACE_DOMAIN,
-  disableEmailPasswordAuthentication = import.meta.env
-    .VITE_DISABLE_EMAIL_PASSWORD_AUTHENTICATION === "true",
+  googleWorkplaceDomain = defaultConfiguration.googleWorkplaceDomain,
+  disableEmailPasswordAuthentication = defaultConfiguration.disableEmailPasswordAuthentication,
+  inboundEmail = defaultConfiguration.inboundEmail,
+  ldapConfig = defaultConfiguration.ldapConfig,
   disableTelemetry,
   ...rest
 }: CRMProps) => {
@@ -153,6 +155,8 @@ export const CRM = ({
       lightModeLogo,
       googleWorkplaceDomain,
       disableEmailPasswordAuthentication,
+      inboundEmail,
+      ldapConfig,
     } satisfies ConfigurationContextValue);
   }
 
