@@ -9,6 +9,7 @@ import {
   Form,
   useNotify,
   useRedirect,
+  useTranslate,
 } from "ra-core";
 import type { Identifier } from "ra-core";
 import { useMutation } from "@tanstack/react-query";
@@ -29,6 +30,7 @@ import { contactOptionText } from "../misc/ContactOption";
 
 export const ContactMergeButton = () => {
   const [mergeDialogOpen, setMergeDialogOpen] = useState(false);
+  const translate = useTranslate();
   return (
     <>
       <Button
@@ -38,7 +40,7 @@ export const ContactMergeButton = () => {
         onClick={() => setMergeDialogOpen(true)}
       >
         <Merge className="w-4 h-4" />
-        Merge with another contact
+        {translate("crm.contacts.merge_with")}
       </Button>
       <ContactMergeDialog
         open={mergeDialogOpen}
@@ -58,6 +60,7 @@ const ContactMergeDialog = ({ open, onClose }: ContactMergeDialogProps) => {
   const notify = useNotify();
   const redirect = useRedirect();
   const dataProvider = useDataProvider();
+  const translate = useTranslate();
   const [winnerId, setWinnerId] = useState<Identifier | null>(null);
   const [suggestedWinnerId, setSuggestedWinnerId] = useState<Identifier | null>(
     null,
@@ -125,7 +128,9 @@ const ContactMergeDialog = ({ open, onClose }: ContactMergeDialogProps) => {
 
   const handleMerge = async () => {
     if (!winnerId || !loserContact) {
-      notify("Please select a contact to merge with", { type: "warning" });
+      notify(translate("crm.contacts.select_contact_warning"), {
+        type: "warning",
+      });
       return;
     }
 
@@ -133,12 +138,12 @@ const ContactMergeDialog = ({ open, onClose }: ContactMergeDialogProps) => {
       setIsMerging(true);
       await mutateAsync();
       setIsMerging(false);
-      notify("Contacts merged successfully", { type: "success" });
+      notify(translate("crm.contacts.merge_success"), { type: "success" });
       redirect(`/contacts/${winnerId}/show`);
       onClose();
     } catch (error) {
       setIsMerging(false);
-      notify("Failed to merge contacts", { type: "error" });
+      notify(translate("crm.contacts.merge_error"), { type: "error" });
       console.error("Merge failed:", error);
     }
   };
@@ -149,16 +154,16 @@ const ContactMergeDialog = ({ open, onClose }: ContactMergeDialogProps) => {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="md:min-w-lg max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Merge Contact</DialogTitle>
+          <DialogTitle>{translate("crm.contacts.merge_title")}</DialogTitle>
           <DialogDescription>
-            Merge this contact with another one.
+            {translate("crm.contacts.merge_description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
             <p className="font-medium text-sm">
-              Current Contact (will be deleted)
+              {translate("crm.contacts.current_contact")}
             </p>
             <div className="font-medium text-sm mt-4">{contactOptionText}</div>
 
@@ -167,7 +172,7 @@ const ContactMergeDialog = ({ open, onClose }: ContactMergeDialogProps) => {
             </div>
 
             <p className="font-medium text-sm mb-2">
-              Target Contact (will be kept)
+              {translate("crm.contacts.target_contact")}
             </p>
             <Form>
               <ReferenceInput
@@ -190,38 +195,53 @@ const ContactMergeDialog = ({ open, onClose }: ContactMergeDialogProps) => {
           {winnerId && (
             <>
               <div className="space-y-2">
-                <p className="font-medium text-sm">What will be merged:</p>
+                <p className="font-medium text-sm">
+                  {translate("crm.contacts.what_will_be_merged")}
+                </p>
                 <ul className="text-sm text-muted-foreground space-y-1 ml-4">
                   {notesCount != null && notesCount > 0 && (
                     <li>
-                      • {notesCount} note
-                      {notesCount !== 1 ? "s" : ""} will be reassigned
+                      •{" "}
+                      {translate("crm.contacts.notes_will_be_reassigned", {
+                        count: notesCount,
+                        smart_count: notesCount,
+                      })}
                     </li>
                   )}
                   {tasksCount != null && tasksCount > 0 && (
                     <li>
-                      • {tasksCount} task
-                      {tasksCount !== 1 ? "s" : ""} will be reassigned
+                      •{" "}
+                      {translate("crm.contacts.tasks_will_be_reassigned", {
+                        count: tasksCount,
+                        smart_count: tasksCount,
+                      })}
                     </li>
                   )}
                   {dealsCount != null && dealsCount > 0 && (
                     <li>
-                      • {dealsCount} deal
-                      {dealsCount !== 1 ? "s" : ""} will be updated
+                      •{" "}
+                      {translate("crm.contacts.deals_will_be_updated", {
+                        count: dealsCount,
+                        smart_count: dealsCount,
+                      })}
                     </li>
                   )}
                   {loserContact.email_jsonb?.length > 0 && (
                     <li>
-                      • {loserContact.email_jsonb.length} email address
-                      {loserContact.email_jsonb.length !== 1 ? "es" : ""} will
-                      be added
+                      •{" "}
+                      {translate("crm.contacts.emails_will_be_added", {
+                        count: loserContact.email_jsonb.length,
+                        smart_count: loserContact.email_jsonb.length,
+                      })}
                     </li>
                   )}
                   {loserContact.phone_jsonb?.length > 0 && (
                     <li>
-                      • {loserContact.phone_jsonb.length} phone number
-                      {loserContact.phone_jsonb.length !== 1 ? "s" : ""} will be
-                      added
+                      •{" "}
+                      {translate("crm.contacts.phones_will_be_added", {
+                        count: loserContact.phone_jsonb.length,
+                        smart_count: loserContact.phone_jsonb.length,
+                      })}
                     </li>
                   )}
                   {!notesCount &&
@@ -230,17 +250,18 @@ const ContactMergeDialog = ({ open, onClose }: ContactMergeDialogProps) => {
                     !loserContact.email_jsonb?.length &&
                     !loserContact.phone_jsonb?.length && (
                       <li className="text-muted-foreground/60">
-                        No additional data to merge
+                        {translate("crm.contacts.no_data_to_merge")}
                       </li>
                     )}
                 </ul>
               </div>
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Warning: Destructive Operation</AlertTitle>
+                <AlertTitle>
+                  {translate("crm.contacts.warning_destructive")}
+                </AlertTitle>
                 <AlertDescription>
-                  All data will be transferred to the second contact. This
-                  action cannot be undone.
+                  {translate("crm.contacts.warning_message")}
                 </AlertDescription>
               </Alert>
             </>
@@ -250,11 +271,13 @@ const ContactMergeDialog = ({ open, onClose }: ContactMergeDialogProps) => {
         <DialogFooter>
           <Button variant="ghost" onClick={onClose} disabled={isMerging}>
             <CircleX />
-            Cancel
+            {translate("ra.action.cancel")}
           </Button>
           <Button onClick={handleMerge} disabled={!winnerId || isMerging}>
             <Merge />
-            {isMerging ? "Merging..." : "Merge Contacts"}
+            {isMerging
+              ? translate("crm.contacts.merging")
+              : translate("crm.contacts.merge_contacts")}
           </Button>
         </DialogFooter>
       </DialogContent>
