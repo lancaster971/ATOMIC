@@ -1,0 +1,96 @@
+version: "3.8"
+
+services:
+  # ============== FastAPI Backend ==============
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atomic-api
+    ports:
+      - "8000:8000"
+    environment:
+      # App
+      - ATOMIC_API_DEBUG=false
+      - ATOMIC_API_LOG_LEVEL=INFO
+      - ATOMIC_API_LOG_FORMAT=json
+      
+      # Database (stesso Supabase locale o remoto)
+      - ATOMIC_API_DATABASE_URL=postgresql+asyncpg://postgres:postgres@host.docker.internal:54322/postgres
+      - ATOMIC_API_DATABASE_URL_SYNC=postgresql://postgres:postgres@host.docker.internal:54322/postgres
+      
+      # Redis (opzionale, per Celery)
+      - ATOMIC_API_REDIS_URL=redis://redis:6379/0
+      
+      # Supabase
+      - ATOMIC_API_SUPABASE_URL=${ATOMIC_API_SUPABASE_URL:-http://host.docker.internal:54321}
+      - ATOMIC_API_SUPABASE_SERVICE_ROLE_KEY=${ATOMIC_API_SUPABASE_SERVICE_ROLE_KEY}
+      
+      # Dynamics BC (configura con env vars)
+      - ATOMIC_API_DYNAMICS_BC_ENABLED=${ATOMIC_API_DYNAMICS_BC_ENABLED:-false}
+      - ATOMIC_API_DYNAMICS_BC_TENANT_ID=${ATOMIC_API_DYNAMICS_BC_TENANT_ID}
+      - ATOMIC_API_DYNAMICS_BC_CLIENT_ID=${ATOMIC_API_DYNAMICS_BC_CLIENT_ID}
+      - ATOMIC_API_DYNAMICS_BC_CLIENT_SECRET=${ATOMIC_API_DYNAMICS_BC_CLIENT_SECRET}
+      - ATOMIC_API_DYNAMICS_BC_COMPANY_ID=${ATOMIC_API_DYNAMICS_BC_COMPANY_ID}
+      - ATOMIC_API_DYNAMICS_BC_ENVIRONMENT=${ATOMIC_API_DYNAMICS_BC_ENVIRONMENT:-production}
+      
+      # Webhook security
+      - ATOMIC_API_WEBHOOK_SECRET=${ATOMIC_API_WEBHOOK_SECRET}
+      
+      # Sync settings
+      - ATOMIC_API_AUTO_SYNC_ENABLED=${ATOMIC_API_AUTO_SYNC_ENABLED:-false}
+    depends_on:
+      - redis
+    networks:
+      - atomic-network
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ============== Redis (per Celery/cache) ==============
+  redis:
+    image: redis:7-alpine
+    container_name: atomic-redis
+    volumes:
+      - redis-data:/data
+    networks:
+      - atomic-network
+    restart: unless-stopped
+
+  # ============== Celery Worker (opzionale) ==============
+  # worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: atomic-worker
+  #   command: celery -A app.tasks.scheduler worker --loglevel=info
+  #   environment:
+  #     - ATOMIC_API_DATABASE_URL=postgresql+asyncpg://postgres:postgres@host.docker.internal:54322/postgres
+  #     - ATOMIC_API_REDIS_URL=redis://redis:6379/0
+  #   depends_on:
+  #     - redis
+  #   networks:
+  #     - atomic-network
+  #   restart: unless-stopped
+
+  # ============== Celery Beat (schedulatore) ==============
+  # scheduler:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: atomic-scheduler
+  #   command: celery -A app.tasks.scheduler beat --loglevel=info
+  #   environment:
+  #     - ATOMIC_API_REDIS_URL=redis://redis:6379/0
+  #   depends_on:
+  #     - redis
+  #   networks:
+  #     - atomic-network
+  #   restart: unless-stopped
+
+volumes:
+  redis-data:
+
+networks:
+  atomic-network:
+    driver: bridge
