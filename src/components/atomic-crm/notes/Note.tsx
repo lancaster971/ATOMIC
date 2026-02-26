@@ -4,6 +4,7 @@ import {
   useDelete,
   useNotify,
   useResourceContext,
+  useTranslate,
   useUpdate,
   WithRecord,
 } from "ra-core";
@@ -43,6 +44,7 @@ export const Note = ({
   const contentRef = useRef<HTMLDivElement>(null);
   const resource = useResourceContext();
   const notify = useNotify();
+  const translate = useTranslate();
 
   // Detect if content is truncated
   useEffect(() => {
@@ -57,7 +59,7 @@ export const Note = ({
   const [deleteNote] = useDelete(resource, undefined, {
     mutationMode: "undoable",
     onSuccess: () => {
-      notify("Note deleted", { type: "info", undoable: true });
+      notify(translate("crm.notes.deleted"), { type: "info", undoable: true });
     },
   });
 
@@ -199,7 +201,7 @@ export const Note = ({
               }}
               className="text-primary text-sm mt-1 underline hover:no-underline cursor-pointer"
             >
-              {isExpanded ? "Show less" : "Read more"}
+              {isExpanded ? translate("crm.notes.show_less") : translate("crm.notes.read_more")}
             </button>
           )}
 

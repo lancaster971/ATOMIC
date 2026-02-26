@@ -5,6 +5,7 @@ import {
   useGetIdentity,
   useGetOne,
   useNotify,
+  useTranslate,
   useUpdate,
 } from "ra-core";
 import { CreateSheet } from "../misc/CreateSheet";
@@ -33,6 +34,7 @@ export const TaskCreateSheet = ({
   const [update] = useUpdate();
   const dataProvider = useDataProvider();
   const notify = useNotify();
+  const translate = useTranslate();
 
   if (!identity) return null;
 
@@ -48,7 +50,7 @@ export const TaskCreateSheet = ({
       data: { last_seen: new Date().toISOString() },
       previousData: contact,
     });
-    notify("Task added");
+    notify(translate("crm.tasks.added"));
     // No redirect, only close the sheet
     onOpenChange(false);
   };
@@ -58,7 +60,7 @@ export const TaskCreateSheet = ({
       resource="tasks"
       title={
         <h1 className="text-xl font-semibold truncate pr-10">
-          {!selectContact ? "Create Task for " : "Create Task"}
+          {!selectContact ? translate("crm.misc.create_task_for") : translate("crm.misc.create_task")}
           {!selectContact && (
             <RecordRepresentation record={contact} resource="contacts" />
           )}

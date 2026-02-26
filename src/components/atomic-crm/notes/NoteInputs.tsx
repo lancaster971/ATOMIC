@@ -13,7 +13,7 @@ import { getCurrentDate } from "./utils";
 import { AttachmentField } from "./AttachmentField";
 import { foreignKeyMapping } from "./foreignKeyMapping";
 import { AutocompleteInput, ReferenceInput } from "@/components/admin";
-import { required } from "ra-core";
+import { required, useTranslate } from "ra-core";
 import { contactOptionText } from "../misc/ContactOption";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -30,6 +30,7 @@ export const NoteInputs = ({
   const { noteStatuses } = useConfigurationContext();
   const { setValue } = useFormContext();
   const [displayMore, setDisplayMore] = useState(false);
+  const translate = useTranslate();
 
   return (
     <div className="space-y-2">
@@ -38,7 +39,7 @@ export const NoteInputs = ({
         label={false}
         multiline
         helperText={false}
-        placeholder="Add a note"
+        placeholder={translate("crm.notes.add_placeholder")}
         rows={6}
       />
 
@@ -48,7 +49,7 @@ export const NoteInputs = ({
           reference={reference}
         >
           <AutocompleteInput
-            label={reference === "contacts" ? "Contact" : "Deal"}
+            label={reference === "contacts" ? translate("crm.misc.contact") : translate("crm.misc.deal")}
             optionText={
               reference === "contacts" ? contactOptionText : undefined
             }
@@ -69,10 +70,10 @@ export const NoteInputs = ({
             }}
             className="text-sm text-muted-foreground underline hover:no-underline p-0 h-auto cursor-pointer"
           >
-            Show options
+            {translate("crm.tasks.show_options")}
           </Button>
           <span className="text-sm text-muted-foreground">
-            (attach files, or change details)
+            {translate("crm.tasks.attach_files_hint")}
           </span>
         </div>
       )}
@@ -100,7 +101,7 @@ export const NoteInputs = ({
           )}
           <DateTimeInput
             source="date"
-            label="Date"
+            label={translate("crm.notes.date")}
             helperText={false}
             className="text-primary"
             defaultValue={getCurrentDate()}
