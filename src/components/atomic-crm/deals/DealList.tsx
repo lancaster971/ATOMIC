@@ -1,4 +1,4 @@
-import { useGetIdentity, useListContext } from "ra-core";
+import { useGetIdentity, useListContext, useTranslate } from "ra-core";
 import { matchPath, useLocation } from "react-router";
 import { AutocompleteInput } from "@/components/admin/autocomplete-input";
 import { CreateButton } from "@/components/admin/create-button";
@@ -22,17 +22,21 @@ import { OnlyMineInput } from "./OnlyMineInput";
 const DealList = () => {
   const { identity } = useGetIdentity();
   const { dealCategories } = useConfigurationContext();
+  const translate = useTranslate();
 
   if (!identity) return null;
 
   const dealFilters = [
     <SearchInput source="q" alwaysOn />,
     <ReferenceInput source="company_id" reference="companies">
-      <AutocompleteInput label={false} placeholder="Company" />
+      <AutocompleteInput
+        label={false}
+        placeholder={translate("crm.nav.companies")}
+      />
     </ReferenceInput>,
     <SelectInput
       source="category"
-      emptyText="Category"
+      emptyText={translate("crm.misc.category_select")}
       choices={dealCategories}
       optionText="label"
       optionValue="value"
@@ -86,12 +90,15 @@ const DealLayout = () => {
   );
 };
 
-const DealActions = () => (
-  <TopToolbar>
-    <FilterButton />
-    <ExportButton />
-    <CreateButton label="New Deal" />
-  </TopToolbar>
-);
+const DealActions = () => {
+  const translate = useTranslate();
+  return (
+    <TopToolbar>
+      <FilterButton />
+      <ExportButton />
+      <CreateButton label={translate("crm.deals.new")} />
+    </TopToolbar>
+  );
+};
 
 export default DealList;

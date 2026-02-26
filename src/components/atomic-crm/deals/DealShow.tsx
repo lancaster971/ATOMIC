@@ -8,6 +8,7 @@ import {
   useRecordContext,
   useRedirect,
   useRefresh,
+  useTranslate,
   useUpdate,
 } from "ra-core";
 import { DeleteButton } from "@/components/admin/delete-button";
@@ -49,6 +50,7 @@ export const DealShow = ({ open, id }: { open: boolean; id?: string }) => {
 
 const DealShowContent = () => {
   const { dealStages, dealCategories } = useConfigurationContext();
+  const translate = useTranslate();
   const record = useRecordContext<Deal>();
   if (!record) return null;
 
@@ -92,7 +94,7 @@ const DealShowContent = () => {
                 <span className="text-sm">
                   {isValid(new Date(record.expected_closing_date))
                     ? format(new Date(record.expected_closing_date), "PP")
-                    : "Invalid date"}
+                    : translate("crm.misc.invalid_date")}
                 </span>
                 {new Date(record.expected_closing_date) < new Date() ? (
                   <Badge variant="destructive">Past</Badge>
@@ -179,17 +181,21 @@ const DealShowContent = () => {
   );
 };
 
-const ArchivedTitle = () => (
-  <div className="bg-orange-500 px-6 py-4">
-    <h3 className="text-lg font-bold text-white">Archived Deal</h3>
-  </div>
-);
+const ArchivedTitle = () => {
+  const translate = useTranslate();
+  return (
+    <div className="bg-orange-500 px-6 py-4">
+      <h3 className="text-lg font-bold text-white">{translate("crm.deals.archived_title")}</h3>
+    </div>
+  );
+};
 
 const ArchiveButton = ({ record }: { record: Deal }) => {
   const [update] = useUpdate();
   const redirect = useRedirect();
   const notify = useNotify();
   const refresh = useRefresh();
+  const translate = useTranslate();
   const handleClick = () => {
     update(
       "deals",
@@ -201,11 +207,11 @@ const ArchiveButton = ({ record }: { record: Deal }) => {
       {
         onSuccess: () => {
           redirect("list", "deals");
-          notify("Deal archived", { type: "info", undoable: false });
+          notify(translate("crm.deals.archived"), { type: "info", undoable: false });
           refresh();
         },
         onError: () => {
-          notify("Error: deal not archived", { type: "error" });
+          notify(translate("crm.deals.archive_error"), { type: "error" });
         },
       },
     );
@@ -219,7 +225,7 @@ const ArchiveButton = ({ record }: { record: Deal }) => {
       className="flex items-center gap-2 h-9"
     >
       <Archive className="w-4 h-4" />
-      Archive
+      {translate("ra.action.archive")}
     </Button>
   );
 };
@@ -229,19 +235,20 @@ const UnarchiveButton = ({ record }: { record: Deal }) => {
   const redirect = useRedirect();
   const notify = useNotify();
   const refresh = useRefresh();
+  const translate = useTranslate();
 
   const { mutate } = useMutation({
     mutationFn: () => dataProvider.unarchiveDeal(record),
     onSuccess: () => {
       redirect("list", "deals");
-      notify("Deal unarchived", {
+      notify(translate("crm.deals.unarchived"), {
         type: "info",
         undoable: false,
       });
       refresh();
     },
     onError: () => {
-      notify("Error: deal not unarchived", { type: "error" });
+      notify(translate("crm.deals.unarchive_error"), { type: "error" });
     },
   });
 
@@ -257,7 +264,7 @@ const UnarchiveButton = ({ record }: { record: Deal }) => {
       className="flex items-center gap-2 h-9"
     >
       <ArchiveRestore className="w-4 h-4" />
-      Send back to the board
+      {translate("crm.deals.back_to_board")}
     </Button>
   );
 };

@@ -1,4 +1,4 @@
-import { required } from "ra-core";
+import { required, useTranslate } from "ra-core";
 import { AutocompleteArrayInput } from "@/components/admin/autocomplete-array-input";
 import { ReferenceArrayInput } from "@/components/admin/reference-array-input";
 import { ReferenceInput } from "@/components/admin/reference-input";
@@ -15,6 +15,7 @@ import { AutocompleteCompanyInput } from "../companies/AutocompleteCompanyInput.
 
 export const DealInputs = () => {
   const isMobile = useIsMobile();
+  const translate = useTranslate();
   return (
     <div className="flex flex-col gap-8">
       <DealInfoInputs />
@@ -29,11 +30,12 @@ export const DealInputs = () => {
 };
 
 const DealInfoInputs = () => {
+  const translate = useTranslate();
   return (
     <div className="flex flex-col gap-4 flex-1">
       <TextInput
         source="name"
-        label="Deal name"
+        label={translate("crm.deals.deal_name")}
         validate={required()}
         helperText={false}
       />
@@ -43,16 +45,17 @@ const DealInfoInputs = () => {
 };
 
 const DealLinkedToInputs = () => {
+  const translate = useTranslate();
   return (
     <div className="flex flex-col gap-4 flex-1">
-      <h3 className="text-base font-medium">Linked to</h3>
+      <h3 className="text-base font-medium">{translate("crm.deals.linked_to")}</h3>
       <ReferenceInput source="company_id" reference="companies">
         <AutocompleteCompanyInput validate={required()} />
       </ReferenceInput>
 
       <ReferenceArrayInput source="contact_ids" reference="contacts_summary">
         <AutocompleteArrayInput
-          label="Contacts"
+          label={translate("crm.deals.contacts")}
           optionText={contactOptionText}
           helperText={false}
         />
@@ -63,13 +66,14 @@ const DealLinkedToInputs = () => {
 
 const DealMiscInputs = () => {
   const { dealStages, dealCategories } = useConfigurationContext();
+  const translate = useTranslate();
   return (
     <div className="flex flex-col gap-4 flex-1">
-      <h3 className="text-base font-medium">Misc</h3>
+      <h3 className="text-base font-medium">{translate("crm.deals.misc")}</h3>
 
       <SelectInput
         source="category"
-        label="Category"
+        label={translate("crm.deals.category")}
         choices={dealCategories}
         optionText="label"
         optionValue="value"
