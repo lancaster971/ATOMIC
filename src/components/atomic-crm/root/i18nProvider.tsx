@@ -1,25 +1,22 @@
 import { mergeTranslations } from "ra-core";
 import polyglotI18nProvider from "ra-i18n-polyglot";
 import englishMessages from "ra-language-english";
-import { raSupabaseEnglishMessages } from "ra-supabase-language-english";
+import italianMessages from "./italianMessages";
+import { crmEnglishMessages, crmItalianMessages } from "./crmMessages";
 
-const raSupabaseEnglishMessagesOverride = {
-  "ra-supabase": {
-    auth: {
-      password_reset: "Check your emails for a Reset Password message.",
-    },
-  },
+const translations: Record<string, () => object> = {
+  en: () =>
+    mergeTranslations(englishMessages, crmEnglishMessages),
+  it: () =>
+    mergeTranslations(italianMessages, crmItalianMessages),
 };
 
 export const i18nProvider = polyglotI18nProvider(
-  () => {
-    return mergeTranslations(
-      englishMessages,
-      raSupabaseEnglishMessages,
-      raSupabaseEnglishMessagesOverride,
-    );
-  },
+  (locale) => translations[locale](),
   "en",
-  [{ locale: "en", name: "English" }],
+  [
+    { locale: "en", name: "English" },
+    { locale: "it", name: "Italiano" },
+  ],
   { allowMissing: true },
 );
