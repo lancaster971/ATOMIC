@@ -3,6 +3,8 @@ import { supabaseAuthProvider } from "ra-supabase-core";
 
 import { canAccess } from "../commons/canAccess";
 import { supabase } from "./supabase";
+import { authenticateWithLDAP } from "./ldapAuth";
+import type { LDAPConfig } from "../../root/ConfigurationContext";
 
 const baseAuthProvider = supabaseAuthProvider(supabase, {
   getIdentity: async () => {
@@ -88,6 +90,7 @@ function clearCache() {
 export const authProvider: AuthProvider = {
   ...baseAuthProvider,
   login: async (params) => {
+    // Handle SSO login
     if (params.ssoDomain) {
       const { error } = await supabase.auth.signInWithSSO({
         domain: params.ssoDomain,
@@ -97,6 +100,54 @@ export const authProvider: AuthProvider = {
       }
       return;
     }
+
+    // Handle LDAP login
+    if (params.ldapConfig && params.ldapConfig.enabled) {
+      const ldapUrl = import.meta.env.VITE_SUPABASE_URL;
+      const ldapKey = import.meta.env.VITE_SB_PUBLISHABLE_KEY;
+
+      if (!ldapUrl || !ldapKey) {
+        throw new Error("LDAP configuration error: Missing Supabase credentials");
+      }
+
+      const result = await authenticateWithLDAP(
+        params.email,
+        params.password,
+        params.ldapConfig as LDAPConfig,
+        ldapUrl,
+        ldapKey,
+      );
+
+      if (!result.success) {
+        throw new Error(result.message || "LDAP authentication failed");
+      }
+
+      // For now, we need to handle the session creation
+      // Since we can't directly create a Supabase session from LDAP,
+      // we'll try to sign in with a magic link or similar approach
+      // This is a simplified version - in production you might want
+      // to implement a more secure token exchange
+
+      // Try to get existing session or create one
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.signInWithOtp({
+          email: result.email || params.email,
+          options: {
+            shouldCreateUser: false,
+          },
+        });
+
+      if (sessionError) {
+        // If OTP fails, the user might need to be created first
+        // In a real implementation, you'd handle this via a secure backend flow
+        console.error("Session creation error:", sessionError);
+        throw new Error("Failed to create session. Please contact administrator.");
+      }
+
+      return;
+    }
+
+    // Default email/password login
     return baseAuthProvider.login(params);
   },
   logout: async (params) => {
