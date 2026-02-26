@@ -49,6 +49,7 @@ export const validateItemsInUse = (
   deals: RaRecord[] | undefined,
   fieldName: string,
   displayName: string,
+  translate?: (key: string) => string,
 ) => {
   if (!items) return undefined;
   // Check for duplicate slugs
@@ -63,7 +64,7 @@ export const validateItemsInUse = (
     return `Duplicate ${displayName}: ${[...duplicates].join(", ")}`;
   }
   // Check that no in-use value was removed (skip if deals haven't loaded)
-  if (!deals) return "Validating…";
+  if (!deals) return translate ? translate("crm.misc.validating") : "Validating…";
   const values = new Set(slugs);
   const inUse = [
     ...new Set(
@@ -186,14 +187,14 @@ const SettingsFormFields = () => {
 
   const validateDealStages = useCallback(
     (stages: { value: string; label: string }[] | undefined) =>
-      validateItemsInUse(stages, deals, "stage", "stages"),
-    [deals],
+      validateItemsInUse(stages, deals, "stage", "stages", translate),
+    [deals, translate],
   );
 
   const validateDealCategories = useCallback(
     (categories: { value: string; label: string }[] | undefined) =>
-      validateItemsInUse(categories, deals, "category", "categories"),
-    [deals],
+      validateItemsInUse(categories, deals, "category", "categories", translate),
+    [deals, translate],
   );
 
   return (
@@ -466,13 +467,13 @@ const LDAPConfigSection = () => {
       });
 
       if (response.ok) {
-        notify("LDAP connection successful", { type: "success" });
+        notify(translate("crm.settings.ldap_connection_success"), { type: "success" });
       } else {
         const error = await response.json();
-        notify(error.message || "Connection failed", { type: "error" });
+        notify(error.message || translate("crm.settings.ldap_connection_failed"), { type: "error" });
       }
     } catch (error) {
-      notify("Failed to test connection", { type: "error" });
+      notify(translate("crm.settings.ldap_test_failed"), { type: "error" });
     } finally {
       setTesting(false);
     }
@@ -491,8 +492,8 @@ const LDAPConfigSection = () => {
         </h3>
         <TextInput
           source="googleWorkplaceDomain"
-          label="SSO Domain"
-          helperText="Domain for SSO authentication (e.g., company.com). Requires SAML configuration in Supabase."
+          label={translate("crm.settings.sso_domain")}
+          helperText={translate("crm.settings.sso_domain_helper")}
         />
         
         <Separator />
@@ -529,27 +530,27 @@ const LDAPConfigSection = () => {
             <div className="grid grid-cols-2 gap-4">
               <TextInput
                 source="ldapConfig.url"
-                label="LDAP Server URL"
-                helperText="e.g., ldap://ad.company.com or ldaps://ad.company.com:636"
+                label={translate("crm.settings.ldap_server_url")}
+                helperText={translate("crm.settings.ldap_server_url_helper")}
               />
               <TextInput
                 source="ldapConfig.baseDN"
-                label="Base DN"
-                helperText="e.g., DC=company,DC=com"
+                label={translate("crm.settings.base_dn")}
+                helperText={translate("crm.settings.base_dn_helper")}
               />
             </div>
 
             <TextInput
               source="ldapConfig.userSearchFilter"
-              label="User Search Filter"
-              helperText="Use {username} as placeholder. e.g., (userPrincipalName={username}) or (sAMAccountName={username})"
+              label={translate("crm.settings.user_search_filter")}
+              helperText={translate("crm.settings.user_search_filter_helper")}
             />
 
             <div className="grid grid-cols-2 gap-4">
               <TextInput
                 source="ldapConfig.usernameAttribute"
-                label="Username Attribute"
-                helperText="e.g., userPrincipalName or sAMAccountName"
+                label={translate("crm.settings.username_attribute")}
+                helperText={translate("crm.settings.username_attribute_helper")}
               />
               <div className="flex items-center gap-4">
                 <label className="flex items-center gap-2 text-sm">
@@ -582,14 +583,14 @@ const LDAPConfigSection = () => {
             <div className="grid grid-cols-2 gap-4">
               <TextInput
                 source="ldapConfig.serviceAccountDN"
-                label="Service Account DN"
+                label={translate("crm.settings.service_account_dn")}
                 helperText="e.g., CN=ServiceAccount,DC=company,DC=com"
               />
               <TextInput
                 source="ldapConfig.serviceAccountPassword"
-                label="Service Account Password"
+                label={translate("crm.settings.service_account_password")}
                 type="password"
-                helperText="Password for the service account"
+                helperText={translate("crm.settings.service_account_password_helper")}
               />
             </div>
 
@@ -627,7 +628,7 @@ const LDAPConfigSection = () => {
                 onClick={handleTestConnection}
                 disabled={testing || !ldapConfig?.url}
               >
-                {testing ? "Testing..." : "Test Connection"}
+                {testing ? translate("crm.misc.testing") : translate("crm.misc.test_connection")}
               </Button>
             </div>
           </div>
@@ -643,8 +644,8 @@ const LDAPConfigSection = () => {
           <div className="flex-1">
             <TextInput
               source="inboundEmail"
-              label="Inbound Email Address"
-              helperText="Email address for receiving notes via email (e.g., xxxx@inbound.postmarkapp.com)"
+              label={translate("crm.settings.inbound_email_address")}
+              helperText={translate("crm.settings.inbound_email_helper")}
             />
           </div>
           <InboundEmailCopyButton />
@@ -698,7 +699,7 @@ const InboundEmailCopyButton = () => {
       size="icon"
       onClick={handleCopy}
       className="mt-8"
-      title="Copy to clipboard"
+      title={translate("crm.misc.copy_to_clipboard")}
     >
       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
     </Button>

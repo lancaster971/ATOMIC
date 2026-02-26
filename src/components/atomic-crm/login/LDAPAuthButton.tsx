@@ -1,5 +1,5 @@
 import { useState, type ComponentProps } from "react";
-import { useLogin, useNotify } from "ra-core";
+import { useLogin, useNotify, useTranslate } from "ra-core";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import type { LDAPConfig } from "../root/ConfigurationContext";
@@ -22,6 +22,7 @@ export const LDAPAuthButton = ({
 }: LDAPAuthButtonProps) => {
   const login = useLogin();
   const notify = useNotify();
+  const translate = useTranslate();
   const [isPending, setIsPending] = useState(false);
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -78,7 +79,7 @@ export const LDAPAuthButton = ({
         disabled={isPending}
         {...props}
       >
-        {children || "Sign in with LDAP / Active Directory"}
+        {children || translate("crm.login.ldap_signin")}
         {isPending ? (
           <Spinner
             className="text-primary-foreground size-4"
@@ -93,7 +94,7 @@ export const LDAPAuthButton = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" disabled={isPending} {...props}>
-          {children || "Sign in with LDAP / Active Directory"}
+          {children || translate("crm.login.ldap_signin")}
           {isPending ? (
             <Spinner
               className="text-primary-foreground size-4"
@@ -138,7 +139,7 @@ export const LDAPAuthButton = ({
                 Signing in...
               </>
             ) : (
-              "Sign In"
+              translate("crm.misc.sign_in")
             )}
           </Button>
         </form>
