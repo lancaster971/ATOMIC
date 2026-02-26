@@ -1,4 +1,4 @@
-import { useFieldValue } from "ra-core";
+import { useFieldValue, useTranslate } from "ra-core";
 import { createRef, useCallback, useState } from "react";
 import type { ReactCropperElement } from "react-cropper";
 import { Cropper } from "react-cropper";
@@ -17,6 +17,7 @@ import {
 import "cropperjs/dist/cropper.css";
 
 const ImageEditorField = (props: ImageEditorFieldProps) => {
+  const translate = useTranslate();
   const { getValues } = useFormContext();
   const source = getValues(props.source);
   const imageUrl = source?.src;
@@ -61,7 +62,7 @@ const ImageEditorField = (props: ImageEditorFieldProps) => {
               {...commonProps}
               className="cursor-pointer object-cover"
               style={{ width, height }}
-              alt="Editable content"
+              alt={translate("crm.misc.editable_content")}
             />
           )}
         </div>

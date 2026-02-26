@@ -79,7 +79,7 @@ export const CreateSheet = ({
   children,
   open,
   onOpenChange,
-  title = "Create",
+  title,
   redirect: redirectTo = "show",
   mutationOptions,
   defaultValues,
@@ -87,6 +87,7 @@ export const CreateSheet = ({
 }: CreateSheetProps) => {
   const resource = useResourceContext(createBaseProps);
   const translate = useTranslate();
+  const sheetTitle = title || translate("crm.misc.create");
   const notify = useNotify();
   const redirect = useRedirect();
 
@@ -131,10 +132,10 @@ export const CreateSheet = ({
           >
             <SheetHeader className="border-b">
               <SheetTitle>
-                {typeof title === "string" ? (
-                  <span className="text-xl font-semibold">{title}</span>
+                {typeof sheetTitle === "string" ? (
+                  <span className="text-xl font-semibold">{sheetTitle}</span>
                 ) : (
-                  title
+                  sheetTitle
                 )}
               </SheetTitle>
             </SheetHeader>
