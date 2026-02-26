@@ -1,5 +1,5 @@
 import { Globe, Linkedin, Phone } from "lucide-react";
-import { useRecordContext } from "ra-core";
+import { useRecordContext, useTranslate } from "ra-core";
 import { EditButton } from "@/components/admin/edit-button";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { ReferenceField } from "@/components/admin/reference-field";
@@ -21,15 +21,16 @@ interface CompanyAsideProps {
 
 export const CompanyAside = ({ link = "edit" }: CompanyAsideProps) => {
   const record = useRecordContext<Company>();
+  const translate = useTranslate();
   if (!record) return null;
 
   return (
     <div className="hidden sm:block w-92 min-w-92 space-y-4">
       <div className="flex flex-row space-x-1">
         {link === "edit" ? (
-          <EditButton label="Edit Company" />
+          <EditButton label={translate("crm.companies.edit")} />
         ) : (
-          <ShowButton label="Show Company" />
+          <ShowButton label={translate("crm.companies.show")} />
         )}
       </div>
 
@@ -99,6 +100,7 @@ export const CompanyInfo = ({ record }: { record: Company }) => {
 
 export const ContextInfo = ({ record }: { record: Company }) => {
   const { companySectors } = useConfigurationContext();
+  const translate = useTranslate();
   if (!record.revenue && !record.id) {
     return null;
   }
@@ -108,7 +110,7 @@ export const ContextInfo = ({ record }: { record: Company }) => {
   )?.label;
 
   return (
-    <AsideSection title="Context">
+    <AsideSection title={translate("crm.companies.context")}>
       {sectorLabel && <span>Sector: {sectorLabel}</span>}
       {record.size && (
         <span>
@@ -130,6 +132,7 @@ export const ContextInfo = ({ record }: { record: Company }) => {
 };
 
 export const AddressInfo = ({ record }: { record: Company }) => {
+  const translate = useTranslate();
   if (
     !record.address &&
     !record.city &&
@@ -140,7 +143,7 @@ export const AddressInfo = ({ record }: { record: Company }) => {
   }
 
   return (
-    <AsideSection title="Main Address" noGap>
+    <AsideSection title={translate("crm.companies.main_address")} noGap>
       <TextField source="address" />
       <TextField source="city" />
       <TextField source="zipcode" />
@@ -151,6 +154,7 @@ export const AddressInfo = ({ record }: { record: Company }) => {
 };
 
 export const AdditionalInfo = ({ record }: { record: Company }) => {
+  const translate = useTranslate();
   if (
     !record.created_at &&
     !record.sales_id &&
@@ -165,7 +169,7 @@ export const AdditionalInfo = ({ record }: { record: Company }) => {
   };
 
   return (
-    <AsideSection title="Additional Info">
+    <AsideSection title={translate("crm.companies.additional_info")}>
       {record.description && (
         <p className="text-sm  mb-1">{record.description}</p>
       )}

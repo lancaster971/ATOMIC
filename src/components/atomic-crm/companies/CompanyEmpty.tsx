@@ -1,9 +1,11 @@
+import { useTranslate } from "ra-core";
 import { CreateButton } from "@/components/admin/create-button";
 
 import useAppBarHeight from "../misc/useAppBarHeight";
 
 export const CompanyEmpty = () => {
   const appbarHeight = useAppBarHeight();
+  const translate = useTranslate();
   return (
     <div
       className="flex flex-col justify-center items-center gap-6"
@@ -19,7 +21,7 @@ export const CompanyEmpty = () => {
         </p>
       </div>
       <div className="flex space-x-2">
-        <CreateButton label="Create Company" />
+        <CreateButton label={translate("crm.companies.create")} />
       </div>
     </div>
   );
