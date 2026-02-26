@@ -1,5 +1,6 @@
 import { SaveIcon } from "lucide-react";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useTranslate } from "ra-core";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,6 +31,7 @@ export function TagDialog({
   onClose,
   onSubmit,
 }: TagDialogProps) {
+  const translate = useTranslate();
   const [newTagName, setNewTagName] = useState("");
   const [newTagColor, setNewTagColor] = useState(colors[0]);
   const [disabled, setDisabled] = useState(false);
@@ -76,7 +78,7 @@ export function TagDialog({
                 autoFocus
                 value={newTagName}
                 onChange={handleNewTagNameChange}
-                placeholder="Enter tag name"
+                placeholder={translate("crm.tags.name_placeholder")}
               />
             </div>
 

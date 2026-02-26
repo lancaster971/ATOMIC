@@ -1,7 +1,7 @@
 import { ResponsiveBar } from "@nivo/bar";
 import { format, startOfMonth } from "date-fns";
 import { DollarSign } from "lucide-react";
-import { useGetList } from "ra-core";
+import { useGetList, useTranslate } from "ra-core";
 import { memo, useMemo } from "react";
 
 import type { Deal } from "../types";
@@ -21,6 +21,7 @@ const DEFAULT_LOCALE = "en-US";
 const CURRENCY = "USD";
 
 export const DealsChart = memo(() => {
+  const translate = useTranslate();
   const acceptedLanguages = navigator
     ? navigator.languages || [navigator.language]
     : [DEFAULT_LOCALE];
@@ -177,7 +178,7 @@ export const DealsChart = memo(() => {
                 value: 0,
                 lineStyle: { strokeOpacity: 0 },
                 textStyle: { fill: "#2ebca6" },
-                legend: "Won",
+                legend: translate("crm.dashboard.won"),
                 legendPosition: "top-left",
                 legendOrientation: "vertical",
               },
@@ -189,7 +190,7 @@ export const DealsChart = memo(() => {
                   strokeWidth: 1,
                 },
                 textStyle: { fill: "#e25c3b" },
-                legend: "Lost",
+                legend: translate("crm.dashboard.lost"),
                 legendPosition: "bottom-left",
                 legendOrientation: "vertical",
               },
