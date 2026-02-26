@@ -156,11 +156,19 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/atomic-crm/root/italianMessages.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/atomic-crm/root/i18nProvider.tsx",
           "type": "registry:component"
         },
         {
           "path": "src/components/atomic-crm/root/defaultConfiguration.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/root/crmMessages.ts",
           "type": "registry:component"
         },
         {
@@ -177,6 +185,10 @@
         },
         {
           "path": "src/components/atomic-crm/providers/supabase/supabase.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/providers/supabase/ldapAuth.ts",
           "type": "registry:component"
         },
         {
@@ -449,6 +461,10 @@
         },
         {
           "path": "src/components/atomic-crm/login/LoginPage.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/atomic-crm/login/LDAPAuthButton.tsx",
           "type": "registry:component"
         },
         {
