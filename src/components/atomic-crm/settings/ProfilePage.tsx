@@ -7,6 +7,7 @@ import {
   useGetOne,
   useNotify,
   useRecordContext,
+  useTranslate,
 } from "ra-core";
 import { useState } from "react";
 import { useFormState } from "react-hook-form";
@@ -33,6 +34,7 @@ export const ProfilePage = () => {
   });
   const notify = useNotify();
   const dataProvider = useDataProvider<CrmDataProvider>();
+  const translate = useTranslate();
 
   const { mutate } = useMutation({
     mutationKey: ["signup"],
@@ -46,10 +48,10 @@ export const ProfilePage = () => {
       refetchIdentity();
       refetchUser();
       setEditMode(false);
-      notify("Your profile has been updated");
+      notify(translate("crm.profile.updated"));
     },
     onError: (_) => {
-      notify("An error occurred. Please try again", {
+      notify(translate("crm.profile.update_error"), {
         type: "error",
       });
     },
@@ -92,7 +94,7 @@ const ProfileForm = ({
       return dataProvider.updatePassword(identity.id);
     },
     onSuccess: () => {
-      notify("A reset password email has been sent to your email address");
+      notify(translate("crm.profile.password_reset_sent"));
     },
     onError: (e) => {
       notify(`${e}`, {
@@ -111,10 +113,10 @@ const ProfileForm = ({
     },
     onSuccess: () => {
       refetch();
-      notify("Your profile has been updated");
+      notify(translate("crm.profile.updated"));
     },
     onError: () => {
-      notify("An error occurred. Please try again.");
+      notify(translate("crm.profile.update_error"));
     },
   });
   if (!identity) return null;
@@ -169,7 +171,7 @@ const ProfileForm = ({
               className="flex items-center"
             >
               {isEditMode ? <CircleX /> : <Pencil />}
-              {isEditMode ? "Cancel" : "Edit"}
+              {isEditMode ? translate("crm.profile.cancel") : translate("crm.profile.edit")}
             </Button>
 
             {isEditMode && (
@@ -189,10 +191,9 @@ const ProfileForm = ({
                 Inbound email
               </h2>
               <p className="text-sm text-muted-foreground">
-                You can start sending emails to your server's inbound email
-                address, e.g. by adding it to the
-                <b> Cc: </b> field. Atomic CRM will process the emails and add
-                notes to the corresponding contacts.
+                {translate("crm.settings.inbound_email_explanation", {
+                  cc: "Cc:",
+                })}
               </p>
               <CopyPaste />
             </div>
@@ -246,7 +247,7 @@ const CopyPaste = () => {
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{copied ? "Copied!" : "Copy"}</p>
+          <p>{copied ? translate("crm.profile.copied") : translate("crm.profile.copy")}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

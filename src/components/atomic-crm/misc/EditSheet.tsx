@@ -84,7 +84,7 @@ export const EditSheet = ({
   children,
   open,
   onOpenChange,
-  title = "Edit",
+  title,
   redirect: redirectTo = "show",
   mutationOptions,
   mutationMode = "undoable",
@@ -94,6 +94,7 @@ export const EditSheet = ({
 }: EditSheetProps) => {
   const resource = useResourceContext(editBaseProps);
   const translate = useTranslate();
+  const sheetTitle = title || translate("crm.misc.edit");
   const notify = useNotify();
   const redirect = useRedirect();
 
@@ -143,10 +144,10 @@ export const EditSheet = ({
           >
             <SheetHeader className="border-b">
               <SheetTitle>
-                {typeof title === "string" ? (
-                  <span className="text-xl font-semibold">{title}</span>
+                {typeof sheetTitle === "string" ? (
+                  <span className="text-xl font-semibold">{sheetTitle}</span>
                 ) : (
-                  title
+                  sheetTitle
                 )}
               </SheetTitle>
             </SheetHeader>

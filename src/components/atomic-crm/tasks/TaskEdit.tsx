@@ -1,4 +1,4 @@
-import { EditBase, Form, useNotify, type Identifier } from "ra-core";
+import { EditBase, Form, useNotify, useTranslate, type Identifier } from "ra-core";
 import { DeleteButton } from "@/components/admin/delete-button";
 import { SaveButton } from "@/components/admin/form";
 import {
@@ -21,6 +21,7 @@ export const TaskEdit = ({
   close: () => void;
 }) => {
   const notify = useNotify();
+  const translate = useTranslate();
   return (
     <Dialog open={open} onOpenChange={close}>
       {taskId && (
@@ -31,7 +32,7 @@ export const TaskEdit = ({
           mutationOptions={{
             onSuccess: () => {
               close();
-              notify("Task updated", {
+              notify(translate("crm.tasks.updated"), {
                 type: "info",
                 undoable: true,
               });
@@ -42,7 +43,7 @@ export const TaskEdit = ({
           <DialogContent className="lg:max-w-xl overflow-y-auto max-h-9/10 top-1/20 translate-y-0">
             <Form className="flex flex-col gap-4">
               <DialogHeader>
-                <DialogTitle>Edit task</DialogTitle>
+                <DialogTitle>{translate("crm.tasks.edit_title")}</DialogTitle>
               </DialogHeader>
               <TaskFormContent />
               <DialogFooter className="w-full sm:justify-between gap-4">
@@ -50,7 +51,7 @@ export const TaskEdit = ({
                   mutationOptions={{
                     onSuccess: () => {
                       close();
-                      notify("Task deleted", {
+                      notify(translate("crm.tasks.deleted"), {
                         type: "info",
                         undoable: true,
                       });
@@ -58,7 +59,7 @@ export const TaskEdit = ({
                   }}
                   redirect={false}
                 />
-                <SaveButton label="Save" />
+                <SaveButton label={translate("ra.action.save")} />
               </DialogFooter>
             </Form>
           </DialogContent>

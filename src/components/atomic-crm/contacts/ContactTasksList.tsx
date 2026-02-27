@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRecordContext, useGetList, useTimeout } from "ra-core";
+import { useRecordContext, useGetList, useTimeout, useTranslate } from "ra-core";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
@@ -20,6 +20,7 @@ export const ContactTasksList = () => {
     pagination: { page: 1, perPage: 1 },
     sort: { field: "due_date", order: "ASC" },
   });
+  const translate = useTranslate();
 
   if (!record) return null;
 
@@ -46,9 +47,9 @@ export const ContactTasksList = () => {
           contact_id={record.id}
         />
         <div className="flex flex-col items-center justify-center py-8 text-center">
-          <p className="text-muted-foreground mb-4">No tasks yet</p>
+          <p className="text-muted-foreground mb-4">{translate("crm.tasks.no_tasks_yet")}</p>
           <Button variant="outline" onClick={() => setTaskCreateOpen(true)}>
-            Add task
+            {translate("crm.tasks.add_task")}
           </Button>
         </div>
       </>
@@ -58,29 +59,29 @@ export const ContactTasksList = () => {
   return (
     <div className="flex flex-col gap-4">
       <TasksListFilter
-        title="Overdue"
+        title={translate("crm.tasks.overdue")}
         filter={taskFilters.overdue}
         filterByContact={record.id}
       />
       <TasksListFilter
-        title="Today"
+        title={translate("crm.tasks.today")}
         filter={taskFilters.today}
         filterByContact={record.id}
       />
       <TasksListFilter
-        title="Tomorrow"
+        title={translate("crm.tasks.tomorrow")}
         filter={taskFilters.tomorrow}
         filterByContact={record.id}
       />
       {isBeforeFriday && (
         <TasksListFilter
-          title="This week"
+          title={translate("crm.tasks.this_week")}
           filter={taskFilters.thisWeek}
           filterByContact={record.id}
         />
       )}
       <TasksListFilter
-        title="Later"
+        title={translate("crm.tasks.later")}
         filter={taskFilters.later}
         filterByContact={record.id}
       />

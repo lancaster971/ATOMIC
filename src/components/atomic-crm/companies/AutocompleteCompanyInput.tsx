@@ -1,6 +1,7 @@
-import { useCreate, useGetIdentity, useNotify } from "ra-core";
+import { useCreate, useGetIdentity, useNotify, useTranslate } from "ra-core";
 import { AutocompleteInput } from "@/components/admin/autocomplete-input";
 import type { InputProps } from "ra-core";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const AutocompleteCompanyInput = ({
   validate,
@@ -8,6 +9,7 @@ export const AutocompleteCompanyInput = ({
   const [create] = useCreate();
   const { identity } = useGetIdentity();
   const notify = useNotify();
+  const translate = useTranslate();
   const handleCreateCompany = async (name?: string) => {
     if (!name) return;
     try {
@@ -24,11 +26,12 @@ export const AutocompleteCompanyInput = ({
       );
       return newCompany;
     } catch {
-      notify("An error occurred while creating the company", {
+      notify(translate("crm.misc.error_occurred"), {
         type: "error",
       });
     }
   };
+  const isMobile = useIsMobile();
 
   return (
     <AutocompleteInput
@@ -36,8 +39,9 @@ export const AutocompleteCompanyInput = ({
       helperText={false}
       onCreate={handleCreateCompany}
       createItemLabel="Create %{item}"
-      createLabel="Start typing to create a new company"
+      createLabel={translate("crm.misc.start_typing_company")}
       validate={validate}
+      modal={isMobile}
     />
   );
 };

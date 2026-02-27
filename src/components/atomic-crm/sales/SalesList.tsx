@@ -1,4 +1,4 @@
-import { useRecordContext } from "ra-core";
+import { useRecordContext, useTranslate } from "ra-core";
 import { CreateButton } from "@/components/admin/create-button";
 import { DataTable } from "@/components/admin/data-table";
 import { ExportButton } from "@/components/admin/export-button";
@@ -8,12 +8,15 @@ import { Badge } from "@/components/ui/badge";
 
 import { TopToolbar } from "../layout/TopToolbar";
 
-const SalesListActions = () => (
-  <TopToolbar>
-    <ExportButton />
-    <CreateButton label="New user" />
-  </TopToolbar>
-);
+const SalesListActions = () => {
+  const translate = useTranslate();
+  return (
+    <TopToolbar>
+      <ExportButton />
+      <CreateButton label={translate("crm.users.new")} />
+    </TopToolbar>
+  );
+};
 
 const filters = [<SearchInput source="q" alwaysOn />];
 
@@ -43,9 +46,10 @@ const OptionsField = (_props: { label?: string | boolean }) => {
 };
 
 export function SalesList() {
+  const translate = useTranslate();
   return (
     <List
-      title="Users"
+      title={translate("crm.users.title")}
       filters={filters}
       actions={<SalesListActions />}
       sort={{ field: "first_name", order: "ASC" }}

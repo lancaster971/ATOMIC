@@ -93,3 +93,34 @@ registry-deploy: registry-build ## Deploy the shadcn registry (Automatically don
 registry-gen: ## Generate the shadcn registry (ran automatically by a pre-commit hook)
 	npm run registry:gen
 	npx prettier --config ./.prettierrc.json --write "registry.json"
+
+# -------------------- API Backend Commands --------------------
+
+api-install: ## install API Python dependencies
+	@(cd api && pip install -r requirements.txt)
+
+api-dev: ## start API development server
+	@(cd api && make dev)
+
+api-test: ## run API tests
+	@(cd api && make test)
+
+api-lint: ## lint API code
+	@(cd api && make lint)
+
+api-build: ## build API Docker image
+	@(cd api && make docker-build)
+
+api-up: ## start API with Docker Compose
+	@(cd api && make docker-up)
+
+api-down: ## stop API Docker Compose
+	@(cd api && make docker-down)
+
+api-logs: ## view API logs
+	@(cd api && make docker-logs)
+
+start-full: ## start full stack (Supabase + Frontend + API)
+	$(MAKE) start-supabase
+	$(MAKE) api-up
+	npm run dev

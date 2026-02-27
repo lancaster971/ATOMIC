@@ -1,0 +1,138 @@
+---
+title: LDAP Authentication
+description: Configure LDAP authentication for Active Directory and Azure AD DS
+---
+
+Atomic CRM supports LDAP authentication, allowing users to sign in using their Active Directory or Azure Active Directory Domain Services (Azure AD DS) credentials.
+
+## Overview
+
+LDAP authentication is implemented via a Supabase Edge Function that connects to your LDAP server. When a user attempts to log in:
+
+1. The credentials are sent to the Edge Function
+2. The Edge Function authenticates against the LDAP server
+3. On success, the user is created/synced in Supabase Auth
+4. A session is established
+
+## Configuration
+
+### 1. Enable LDAP in Settings
+
+Navigate to **Settings → Authentication → LDAP / Active Directory** and enable it.
+
+### 2. Configure Connection Settings
+
+| Setting | Description | Example |
+|---------|-------------|---------|
+| **LDAP Server URL** | URL of your LDAP server | `ldaps://ad.company.com:636` |
+| **Base DN** | Base Distinguished Name for searches | `DC=company,DC=com` |
+| **User Search Filter** | Filter to find users | `(userPrincipalName={username})` |
+| **Username Attribute** | Attribute containing username | `userPrincipalName` |
+| **Enable TLS/SSL** | Use secure connection | Recommended for production |
+| **Verify Certificate** | Validate server certificate | Disable only for testing |
+
+### 3. Service Account (Optional)
+
+For user search functionality, configure a service account:
+
+- **Service Account DN**: `CN=LDAPService,DC=company,DC=com`
+- **Service Account Password**: The service account password
+
+If not provided, direct bind authentication is used.
+
+### 4. User Provisioning
+
+- **Auto-create users**: Automatically create CRM users on first LDAP login
+- **Default role**: Assign `user` or `admin` role to new users
+
+## Azure AD DS Configuration
+
+For Azure Active Directory Domain Services:
+
+1. **Enable Azure AD DS** in your Azure subscription
+2. **Configure LDAPS** (recommended) following Microsoft's documentation
+3. **Get the LDAP server URL** from Azure portal (e.g., `ldaps://contoso.com:636`)
+4. **Service Account**: Create a user in Azure AD for LDAP queries
+
+### Azure AD DS Example Settings
+
+```
+URL: ldaps://contoso.com:636
+Base DN: DC=contoso,DC=com
+User Search Filter: (userPrincipalName={username})
+Username Attribute: userPrincipalName
+TLS Enabled: true
+Verify Certificate: true
+```
+
+## On-Premises Active Directory
+
+For traditional Active Directory:
+
+```
+URL: ldap://ad-server.company.local:389
+Base DN: DC=company,DC=local
+User Search Filter: (sAMAccountName={username})
+Username Attribute: sAMAccountName
+```
+
+## Environment Variables
+
+You can also configure LDAP via environment variables:
+
+```bash
+VITE_LDAP_URL=ldaps://ad.company.com:636
+VITE_LDAP_BASE_DN=DC=company,DC=com
+VITE_LDAP_USER_SEARCH_FILTER=(userPrincipalName={username})
+VITE_LDAP_USERNAME_ATTRIBUTE=userPrincipalName
+VITE_LDAP_TLS_ENABLED=true
+VITE_LDAP_TLS_REJECT_UNAUTHORIZED=true
+VITE_LDAP_SERVICE_ACCOUNT_DN=CN=ServiceAccount,DC=company,DC=com
+VITE_LDAP_SERVICE_ACCOUNT_PASSWORD=secret
+```
+
+## Testing Connection
+
+Use the "Test Connection" button in settings to verify:
+
+1. Network connectivity to the LDAP server
+2. TLS/SSL certificate validation (if enabled)
+3. Service account authentication (if configured)
+
+## Security Considerations
+
+1. **Always use LDAPS** in production (port 636)
+2. **Create a dedicated service account** with minimal permissions
+3. **Enable certificate verification** in production
+4. **Use strong passwords** for service accounts
+5. **Restrict network access** to the LDAP server
+
+## Troubleshooting
+
+### Connection Failed
+
+- Verify firewall rules allow connections from Supabase Edge Functions
+- Check if the LDAP server is accessible from the internet (or use VPN)
+- For Azure AD DS, ensure secure LDAP is enabled
+
+### Authentication Failed
+
+- Verify user credentials
+- Check the user search filter matches your LDAP schema
+- Review service account permissions
+
+### User Not Found
+
+- Verify Base DN includes the user
+- Check the user search filter syntax
+- Test with a LDAP browser tool
+
+## Login Flow
+
+When LDAP is enabled, the login page will show:
+
+1. Email/password form (if not disabled)
+2. "Sign in with LDAP / Active Directory" button
+3. SSO button (if configured)
+
+Users can choose their preferred authentication method.

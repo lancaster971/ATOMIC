@@ -4,6 +4,7 @@ import {
   useNotify,
   useRecordContext,
   useRedirect,
+  useTranslate,
 } from "ra-core";
 import { Link } from "react-router";
 import { DeleteButton } from "@/components/admin/delete-button";
@@ -19,6 +20,7 @@ import { DealInputs } from "./DealInputs";
 export const DealEdit = ({ open, id }: { open: boolean; id?: string }) => {
   const redirect = useRedirect();
   const notify = useNotify();
+  const translate = useTranslate();
 
   const handleClose = () => {
     redirect("/deals", undefined, undefined, undefined, {
@@ -35,7 +37,7 @@ export const DealEdit = ({ open, id }: { open: boolean; id?: string }) => {
             mutationMode="pessimistic"
             mutationOptions={{
               onSuccess: () => {
-                notify("Deal updated");
+                notify(translate("crm.deals.updated"));
                 redirect(`/deals/${id}/show`, undefined, undefined, undefined, {
                   _scrollToTop: false,
                 });
@@ -56,6 +58,7 @@ export const DealEdit = ({ open, id }: { open: boolean; id?: string }) => {
 
 function EditHeader() {
   const deal = useRecordContext<Deal>();
+  const translate = useTranslate();
   if (!deal) {
     return null;
   }
@@ -67,12 +70,16 @@ function EditHeader() {
           <ReferenceField source="company_id" reference="companies" link="show">
             <CompanyAvatar />
           </ReferenceField>
-          <h2 className="text-2xl font-semibold">Edit {deal.name} deal</h2>
+          <h2 className="text-2xl font-semibold">
+            {translate("crm.deals.edit_deal", { name: deal.name })}
+          </h2>
         </div>
         <div className="flex gap-2 pr-12">
           <DeleteButton />
           <Button asChild variant="outline" className="h-9">
-            <Link to={`/deals/${deal.id}/show`}>Back to deal</Link>
+            <Link to={`/deals/${deal.id}/show`}>
+              {translate("crm.deals.back_to_deal")}
+            </Link>
           </Button>
         </div>
       </div>

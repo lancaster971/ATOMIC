@@ -1,4 +1,4 @@
-import { useGetList } from "ra-core";
+import { useGetList, useTranslate } from "ra-core";
 import { matchPath, useLocation, Link } from "react-router";
 import type { ReactNode } from "react";
 import { CreateButton } from "@/components/admin/create-button";
@@ -12,6 +12,7 @@ export const DealEmpty = ({ children }: { children?: ReactNode }) => {
   const location = useLocation();
   const matchCreate = matchPath("/deals/create", location.pathname);
   const appbarHeight = useAppBarHeight();
+  const translate = useTranslate();
 
   // get Contact data
   const { data: contacts, isPending: contactsLoading } = useGetList<Contact>(
@@ -40,7 +41,7 @@ export const DealEmpty = ({ children }: { children?: ReactNode }) => {
             </p>
           </div>
           <div className="flex space-x-8">
-            <CreateButton label="Create deal" />
+            <CreateButton label={translate("crm.deals.create")} />
           </div>
           <DealCreate open={!!matchCreate} />
           {children}

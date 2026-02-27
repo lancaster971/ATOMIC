@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useDataProvider, useNotify, useRedirect } from "ra-core";
+import { useDataProvider, useNotify, useRedirect, useTranslate } from "ra-core";
 import type { SubmitHandler } from "react-hook-form";
 import { SimpleForm } from "@/components/admin/simple-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ export function SalesCreate() {
   const dataProvider = useDataProvider<CrmDataProvider>();
   const notify = useNotify();
   const redirect = useRedirect();
+  const translate = useTranslate();
 
   const { mutate } = useMutation({
     mutationKey: ["signup"],
@@ -19,13 +20,11 @@ export function SalesCreate() {
       return dataProvider.salesCreate(data);
     },
     onSuccess: () => {
-      notify(
-        "User created. They will soon receive an email to set their password.",
-      );
+      notify(translate("crm.users.created"));
       redirect("/sales");
     },
     onError: (error) => {
-      notify(error.message || "An error occurred while creating the user.", {
+      notify(error.message || translate("crm.users.create_error"), {
         type: "error",
       });
     },

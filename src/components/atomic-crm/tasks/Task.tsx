@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { MoreVertical } from "lucide-react";
-import { useDeleteWithUndoController, useNotify, useUpdate } from "ra-core";
+import { useDeleteWithUndoController, useNotify, useTranslate, useUpdate } from "ra-core";
 import { useEffect, useState } from "react";
 import { ReferenceField } from "@/components/admin/reference-field";
 import { DateField } from "@/components/admin/date-field";
@@ -30,6 +30,7 @@ export const Task = ({
   const { taskTypes } = useConfigurationContext();
   const notify = useNotify();
   const queryClient = useQueryClient();
+  const translate = useTranslate();
 
   const [openEdit, setOpenEdit] = useState(false);
 
@@ -44,7 +45,7 @@ export const Task = ({
     redirect: false,
     mutationOptions: {
       onSuccess() {
-        notify("Task deleted successfully", { undoable: true });
+        notify(translate("crm.tasks.delete_success"), { undoable: true });
       },
     },
   });

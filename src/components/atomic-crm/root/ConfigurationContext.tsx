@@ -6,6 +6,20 @@ import { defaultConfiguration } from "./defaultConfiguration";
 
 export const CONFIGURATION_STORE_KEY = "app.configuration";
 
+export interface LDAPConfig {
+  enabled: boolean;
+  url: string;
+  baseDN: string;
+  userSearchFilter: string;
+  usernameAttribute: string;
+  tlsEnabled: boolean;
+  tlsRejectUnauthorized: boolean;
+  serviceAccountDN: string;
+  serviceAccountPassword: string;
+  autoCreateUsers: boolean;
+  defaultRole: "user" | "admin";
+}
+
 export interface ConfigurationContextValue {
   companySectors: LabeledValue[];
   dealCategories: LabeledValue[];
@@ -18,6 +32,8 @@ export interface ConfigurationContextValue {
   lightModeLogo: string;
   googleWorkplaceDomain?: string;
   disableEmailPasswordAuthentication?: boolean;
+  inboundEmail?: string;
+  ldapConfig?: LDAPConfig;
 }
 
 export const useConfigurationContext = () => {

@@ -1,4 +1,4 @@
-import { FilterLiveForm, useListContext } from "ra-core";
+import { FilterLiveForm, useListContext, useTranslate } from "ra-core";
 import { SearchInput, type SearchInputProps } from "@/components/admin";
 import {
   Sheet,
@@ -32,6 +32,7 @@ export const ResponsiveFilters = ({
   } = searchInput || {};
   const isMobile = useIsMobile();
   const { setFilters, filterValues } = useListContext();
+  const translate = useTranslate();
 
   // Count active filters excluding the search filter
   const activeFiltersCount = Object.entries(filterValues || {}).filter(
@@ -61,7 +62,7 @@ export const ResponsiveFilters = ({
               variant="ghost"
               size="icon"
               className="relative size-9"
-              aria-label="Filter"
+              aria-label={translate("crm.misc.filter")}
             >
               <Filter className="size-5" />
               {activeFiltersCount > 0 && (

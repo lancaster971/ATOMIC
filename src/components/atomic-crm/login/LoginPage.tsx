@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Form, required, useLogin, useNotify } from "ra-core";
+import { Form, required, useLogin, useNotify, useTranslate } from "ra-core";
 import type { SubmitHandler, FieldValues } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { TextInput } from "@/components/admin/text-input";
 import { Notification } from "@/components/admin/notification";
 import { useConfigurationContext } from "@/components/atomic-crm/root/ConfigurationContext.tsx";
 import { SSOAuthButton } from "./SSOAuthButton";
+import { LDAPAuthButton } from "./LDAPAuthButton";
 
 /**
  * Login page displayed when authentication is enabled and the user is not authenticated.
@@ -23,6 +24,7 @@ export const LoginPage = (props: { redirectTo?: string }) => {
     title,
     googleWorkplaceDomain,
     disableEmailPasswordAuthentication,
+    ldapConfig,
   } = useConfigurationContext();
   const { redirectTo } = props;
   const [loading, setLoading] = useState(false);
@@ -31,6 +33,19 @@ export const LoginPage = (props: { redirectTo?: string }) => {
   const navigate = useNavigate();
   const login = useLogin();
   const notify = useNotify();
+  const translate = useTranslate();
+
+  // Check which authentication methods are available
+  const ldapEnabled = ldapConfig?.enabled && ldapConfig?.url;
+  const ssoEnabled = !!googleWorkplaceDomain;
+  const emailPasswordEnabled = !disableEmailPasswordAuthentication;
+  
+  // Show multiple auth methods if available
+  const multipleMethods = [
+    emailPasswordEnabled,
+    ldapEnabled,
+    ssoEnabled,
+  ].filter(Boolean).length > 1;
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -42,7 +57,7 @@ export const LoginPage = (props: { redirectTo?: string }) => {
 
     hasDisplayedRecoveryNotification.current = true;
     notify(
-      "If you're a registered user, you should receive a password recovery email shortly.",
+      translate("crm.login.password_recovery_sent"),
       {
         type: "success",
       },
@@ -61,6 +76,12 @@ export const LoginPage = (props: { redirectTo?: string }) => {
 
   const handleSubmit: SubmitHandler<FieldValues> = (values) => {
     setLoading(true);
+    
+    // If LDAP is enabled, add the config to the login params
+    if (ldapEnabled) {
+      values.ldapConfig = ldapConfig;
+    }
+    
     login(values, redirectTo)
       .then(() => {
         setLoading(false);
@@ -103,37 +124,68 @@ export const LoginPage = (props: { redirectTo?: string }) => {
             <div className="text-center">
               <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
             </div>
-            {disableEmailPasswordAuthentication ? null : (
-              <Form className="space-y-8" onSubmit={handleSubmit}>
-                <TextInput
-                  label="Email"
-                  source="email"
-                  type="email"
-                  validate={required()}
-                />
-                <TextInput
-                  label="Password"
-                  source="password"
-                  type="password"
-                  validate={required()}
-                />
-                <div className="flex flex-col gap-4">
-                  <Button
-                    type="submit"
-                    className="cursor-pointer"
-                    disabled={loading}
-                  >
-                    Sign in
-                  </Button>
-                </div>
-              </Form>
+            
+            {/* Email/Password Form */}
+            {emailPasswordEnabled && (
+              <>
+                <Form className="space-y-8" onSubmit={handleSubmit}>
+                  <TextInput
+                    label={translate("crm.login.email")}
+                    source="email"
+                    type="email"
+                    validate={required()}
+                  />
+                  <TextInput
+                    label={translate("crm.login.password")}
+                    source="password"
+                    type="password"
+                    validate={required()}
+                  />
+                  <div className="flex flex-col gap-4">
+                    <Button
+                      type="submit"
+                      className="cursor-pointer"
+                      disabled={loading}
+                    >
+                      Sign in
+                    </Button>
+                  </div>
+                </Form>
+                
+                {/* Show dividers between auth methods */}
+                {multipleMethods && (
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue with
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
-            {googleWorkplaceDomain ? (
+            
+            {/* LDAP Authentication */}
+            {ldapEnabled && (
+              <LDAPAuthButton 
+                className="w-full" 
+                config={ldapConfig!}
+                redirectTo={redirectTo}
+              />
+            )}
+            
+            {/* SSO Authentication */}
+            {ssoEnabled && (
               <SSOAuthButton className="w-full" domain={googleWorkplaceDomain}>
                 Sign in with Google Workplace
               </SSOAuthButton>
-            ) : null}
-            {disableEmailPasswordAuthentication ? null : (
+            )}
+            
+            {/* Forgot Password Link */}
+            {emailPasswordEnabled && (
               <Link
                 to={"/forgot-password"}
                 className="block text-sm text-center hover:underline"

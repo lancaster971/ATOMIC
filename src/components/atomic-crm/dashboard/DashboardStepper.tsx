@@ -1,5 +1,5 @@
 import { CheckCircle, Circle, Plus } from "lucide-react";
-import type { Identifier } from "ra-core";
+import { useTranslate, type Identifier } from "ra-core";
 import { Link } from "react-router";
 import { useState } from "react";
 import { CreateButton } from "@/components/admin/create-button";
@@ -24,6 +24,7 @@ export const DashboardStepper = ({
   const isMobile = useIsMobile();
   const [contactCreateOpen, setContactCreateOpen] = useState(false);
   const [noteCreateOpen, setNoteCreateOpen] = useState(false);
+  const translate = useTranslate();
   return (
     <>
       <ContactCreateSheet
@@ -73,11 +74,11 @@ export const DashboardStepper = ({
                         variant="outline"
                       >
                         <Plus className="h-4 w-4" />
-                        New Contact
+                        {translate("crm.contacts.new")}
                       </Button>
                     ) : (
                       <>
-                        <CreateButton label="New Contact" resource="contacts" />
+                        <CreateButton label={translate("crm.contacts.new")} resource="contacts" />
                         <ContactImportButton />
                       </>
                     )}

@@ -11,6 +11,7 @@ import {
   useListContext,
   useRecordContext,
   useShowContext,
+  useTranslate,
 } from "ra-core";
 import {
   Link,
@@ -86,6 +87,7 @@ const CompanyShowContentMobile = () => {
 const CompanyShowContent = () => {
   const { record, isPending } = useShowContext<Company>();
   const navigate = useNavigate();
+  const translate = useTranslate();
 
   // Get tab from URL or default to "activity"
   const tabMatch = useMatch("/companies/:id/show/:tab");
@@ -117,15 +119,19 @@ const CompanyShowContent = () => {
                 <TabsTrigger value="contacts">
                   {record.nb_contacts
                     ? record.nb_contacts === 1
-                      ? "1 Contact"
-                      : `${record.nb_contacts} Contacts`
-                    : "No Contacts"}
+                      ? translate("crm.misc.one_contact")
+                      : translate("crm.misc.contacts_plural", {
+                          count: record.nb_contacts,
+                        })
+                    : translate("crm.misc.no_contacts")}
                 </TabsTrigger>
                 {record.nb_deals ? (
                   <TabsTrigger value="deals">
                     {record.nb_deals === 1
-                      ? "1 deal"
-                      : `${record.nb_deals} deals`}
+                      ? translate("crm.misc.one_deal")
+                      : translate("crm.misc.deals_plural", {
+                          count: record.nb_deals,
+                        })}
                   </TabsTrigger>
                 ) : null}
               </TabsList>

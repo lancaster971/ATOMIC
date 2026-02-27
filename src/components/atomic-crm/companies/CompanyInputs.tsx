@@ -1,4 +1,4 @@
-import { required, useRecordContext } from "ra-core";
+import { required, useRecordContext, useTranslate } from "ra-core";
 import { ReferenceInput } from "@/components/admin/reference-input";
 import { TextInput } from "@/components/admin/text-input";
 import { SelectInput } from "@/components/admin/select-input";
@@ -13,13 +13,13 @@ import { useConfigurationContext } from "../root/ConfigurationContext";
 import type { Company, Sale } from "../types";
 import { sizes } from "./sizes";
 
-const isUrl = (url: string) => {
+const isUrl = (url: string, translate: (key: string) => string) => {
   if (!url) return;
   const UrlRegex = new RegExp(
     /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i,
   );
   if (!UrlRegex.test(url)) {
-    return "Must be a valid URL";
+    return translate("crm.companies.valid_url_error");
   }
 };
 
@@ -47,6 +47,7 @@ export const CompanyInputs = () => {
 
 const CompanyDisplayInputs = () => {
   const record = useRecordContext<Company>();
+  const translate = useTranslate();
   return (
     <div className="flex gap-4 flex-1 flex-row">
       <ImageEditorField
@@ -62,17 +63,18 @@ const CompanyDisplayInputs = () => {
         className="w-full h-fit"
         validate={required()}
         helperText={false}
-        placeholder="Company name"
+        placeholder={translate("crm.companies.company_name_placeholder")}
       />
     </div>
   );
 };
 
 const CompanyContactInputs = () => {
+  const translate = useTranslate();
   return (
     <div className="flex flex-col gap-4">
-      <h6 className="text-lg font-semibold">Contact</h6>
-      <TextInput source="website" helperText={false} validate={isUrl} />
+      <h6 className="text-lg font-semibold">{translate("crm.companies.contact")}</h6>
+      <TextInput source="website" helperText={false} validate={(url: string) => isUrl(url, translate)} />
       <TextInput
         source="linkedin_url"
         helperText={false}
@@ -85,9 +87,10 @@ const CompanyContactInputs = () => {
 
 const CompanyContextInputs = () => {
   const { companySectors } = useConfigurationContext();
+  const translate = useTranslate();
   return (
     <div className="flex flex-col gap-4">
-      <h6 className="text-lg font-semibold">Context</h6>
+      <h6 className="text-lg font-semibold">{translate("crm.companies.context")}</h6>
       <SelectInput
         source="sector"
         choices={companySectors}
@@ -103,9 +106,10 @@ const CompanyContextInputs = () => {
 };
 
 const CompanyAddressInputs = () => {
+  const translate = useTranslate();
   return (
     <div className="flex flex-col gap-4">
-      <h6 className="text-lg font-semibold">Address</h6>
+      <h6 className="text-lg font-semibold">{translate("crm.companies.address")}</h6>
       <TextInput source="address" helperText={false} />
       <TextInput source="city" helperText={false} />
       <TextInput source="zipcode" helperText={false} />
@@ -116,9 +120,10 @@ const CompanyAddressInputs = () => {
 };
 
 const CompanyAdditionalInformationInputs = () => {
+  const translate = useTranslate();
   return (
     <div className="flex flex-col gap-4">
-      <h6 className="text-lg font-semibold">Additional information</h6>
+      <h6 className="text-lg font-semibold">{translate("crm.companies.additional_information")}</h6>
       <TextInput source="description" multiline helperText={false} />
       <ArrayInput source="context_links" helperText={false}>
         <SimpleFormIterator disableReordering fullWidth getItemLabel={false}>
@@ -126,7 +131,7 @@ const CompanyAdditionalInformationInputs = () => {
             source=""
             label={false}
             helperText={false}
-            validate={isUrl}
+            validate={(url: string) => isUrl(url, translate)}
           />
         </SimpleFormIterator>
       </ArrayInput>
@@ -135,9 +140,10 @@ const CompanyAdditionalInformationInputs = () => {
 };
 
 const CompanyAccountManagerInput = () => {
+  const translate = useTranslate();
   return (
     <div className="flex flex-col gap-4">
-      <h6 className="text-lg font-semibold">Account manager</h6>
+      <h6 className="text-lg font-semibold">{translate("crm.companies.account_manager")}</h6>
       <ReferenceInput
         source="sales_id"
         reference="sales"
@@ -146,7 +152,7 @@ const CompanyAccountManagerInput = () => {
         }}
       >
         <SelectInput
-          label="Account manager"
+          label={translate("crm.companies.account_manager")}
           helperText={false}
           optionText={saleOptionRenderer}
         />

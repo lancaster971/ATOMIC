@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RecordRepresentation, ShowBase, useShowContext } from "ra-core";
+import { RecordRepresentation, ShowBase, useShowContext, useTranslate } from "ra-core";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ReferenceField } from "@/components/admin/reference-field";
 import { ReferenceManyField } from "@/components/admin/reference-many-field";
@@ -51,6 +51,7 @@ const ContactShowContentMobile = () => {
   const { record, isPending } = useShowContext<Contact>();
   const [noteCreateOpen, setNoteCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const translate = useTranslate();
   if (isPending || !record) return null;
 
   return (
@@ -84,7 +85,7 @@ const ContactShowContentMobile = () => {
           onClick={() => setEditOpen(true)}
         >
           <Pencil className="size-5" />
-          <span className="sr-only">Edit record</span>
+          <span className="sr-only">{translate("crm.common.edit")}</span>
         </Button>
       </MobileHeader>
       <MobileContent>
@@ -97,7 +98,7 @@ const ContactShowContentMobile = () => {
               </h2>
               <div className="text-sm text-muted-foreground">
                 {record.title}
-                {record.title && record.company_id != null && " at "}
+                {record.title && record.company_id != null && translate("crm.contacts.at_company")}
                 {record.company_id != null && (
                   <ReferenceField
                     source="company_id"
@@ -124,16 +125,16 @@ const ContactShowContentMobile = () => {
 
         <Tabs defaultValue="notes" className="w-full">
           <TabsList className="grid w-full grid-cols-3 h-10">
-            <TabsTrigger value="notes">Notes</TabsTrigger>
+            <TabsTrigger value="notes">{translate("crm.notes.notes")}</TabsTrigger>
             <TabsTrigger value="tasks">
               <ReferenceManyCount
                 target="contact_id"
                 reference="tasks"
                 filter={{ "done_date@is": null }}
               />{" "}
-              Tasks
+              {translate("crm.tasks.tasks")}
             </TabsTrigger>
-            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="details">{translate("crm.common.details")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="notes" className="mt-2">
@@ -143,12 +144,12 @@ const ContactShowContentMobile = () => {
               sort={{ field: "date", order: "DESC" }}
               empty={
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <p className="text-muted-foreground mb-4">No notes yet</p>
+                  <p className="text-muted-foreground mb-4">{translate("crm.notes.no_notes_yet")}</p>
                   <Button
                     variant="outline"
                     onClick={() => setNoteCreateOpen(true)}
                   >
-                    Add note
+                    {translate("crm.notes.add_note")}
                   </Button>
                 </div>
               }
@@ -173,21 +174,21 @@ const ContactShowContentMobile = () => {
           <TabsContent value="details" className="mt-4">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold">Personal info</h3>
+                <h3 className="text-lg font-semibold">{translate("crm.contacts.personal_info")}</h3>
                 <Separator />
                 <div className="mt-3">
                   <ContactPersonalInfo />
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-semibold">Background info</h3>
+                <h3 className="text-lg font-semibold">{translate("crm.contacts.background_section")}</h3>
                 <Separator />
                 <div className="mt-3">
                   <ContactBackgroundInfo />
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-semibold">Tags</h3>
+                <h3 className="text-lg font-semibold">{translate("crm.contacts.tags")}</h3>
                 <Separator />
                 <div className="mt-3">
                   <TagsListEdit />

@@ -1,5 +1,5 @@
 import { useState, type MouseEvent, type ComponentProps } from "react";
-import { useLogin, useNotify } from "ra-core";
+import { useLogin, useNotify, useTranslate } from "ra-core";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -11,6 +11,7 @@ export const SSOAuthButton = ({
 }: SSOAuthButtonProps) => {
   const login = useLogin();
   const notify = useNotify();
+  const translate = useTranslate();
   const [isPending, setIsPending] = useState(false);
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {

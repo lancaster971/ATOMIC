@@ -5,6 +5,7 @@ import {
   useNotify,
   useRecordContext,
   useRedirect,
+  useTranslate,
 } from "ra-core";
 import type { SubmitHandler } from "react-hook-form";
 import { SimpleForm } from "@/components/admin/simple-form";
@@ -31,6 +32,7 @@ export function SalesEdit() {
   const dataProvider = useDataProvider<CrmDataProvider>();
   const notify = useNotify();
   const redirect = useRedirect();
+  const translate = useTranslate();
 
   const { mutate } = useMutation({
     mutationKey: ["signup"],
@@ -42,10 +44,10 @@ export function SalesEdit() {
     },
     onSuccess: () => {
       redirect("/sales");
-      notify("User updated successfully");
+      notify(translate("crm.users.updated"));
     },
     onError: () => {
-      notify("An error occurred. Please try again.");
+      notify(translate("crm.users.update_error"));
     },
   });
 

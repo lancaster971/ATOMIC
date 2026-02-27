@@ -7,6 +7,7 @@ import {
   useGetIdentity,
   useNotify,
   useRecordContext,
+  useTranslate,
   useUpdate,
 } from "ra-core";
 import { useState } from "react";
@@ -40,6 +41,7 @@ export const AddTask = ({
   const [update] = useUpdate();
   const notify = useNotify();
   const contact = useRecordContext();
+  const translate = useTranslate();
   const [open, setOpen] = useState(false);
   const handleOpen = () => {
     setOpen(true);
@@ -58,7 +60,7 @@ export const AddTask = ({
       previousData: contact.data,
     });
 
-    notify("Task added");
+    notify(translate("crm.tasks.added"));
   };
 
   if (!identity) return null;
@@ -119,8 +121,8 @@ export const AddTask = ({
               <DialogHeader>
                 <DialogTitle>
                   {!selectContact
-                    ? "Create a new task for "
-                    : "Create a new task"}
+                    ? translate("crm.tasks.create_new_for")
+                    : translate("crm.tasks.create_new")}
                   {!selectContact && (
                     <RecordRepresentation
                       record={contact}

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useDataProvider, useLogin, useNotify } from "ra-core";
+import { useDataProvider, useLogin, useNotify, useTranslate } from "ra-core";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { Navigate, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,7 @@ export const SignupPage = () => {
         redirectTo: "/contacts",
       })
         .then(() => {
-          notify("Initial user successfully created");
+          notify(translate("crm.login.initial_user_created"));
           // FIXME: We should probably provide a hook for that in the ra-core package
           queryClient.invalidateQueries({
             queryKey: ["auth", "canAccess"],
@@ -54,7 +54,7 @@ export const SignupPage = () => {
             // An email confirmation is required to continue.
             navigate(ConfirmationRequired.path);
           } else {
-            notify("Failed to log in.", {
+            notify(translate("crm.login.login_failed"), {
               type: "error",
             });
             navigate("/login");
@@ -68,6 +68,7 @@ export const SignupPage = () => {
 
   const login = useLogin();
   const notify = useNotify();
+  const translate = useTranslate();
 
   const {
     register,
@@ -156,7 +157,7 @@ export const SignupPage = () => {
                     Creating...
                   </>
                 ) : (
-                  "Create account"
+                  translate("crm.login.create_account")
                 )}
               </Button>
               {googleWorkplaceDomain ? (
