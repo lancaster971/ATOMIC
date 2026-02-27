@@ -1,6 +1,7 @@
 import { useCreate, useGetIdentity, useNotify, useTranslate } from "ra-core";
 import { AutocompleteInput } from "@/components/admin/autocomplete-input";
 import type { InputProps } from "ra-core";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const AutocompleteCompanyInput = ({
   validate,
@@ -30,6 +31,7 @@ export const AutocompleteCompanyInput = ({
       });
     }
   };
+  const isMobile = useIsMobile();
 
   return (
     <AutocompleteInput
@@ -39,6 +41,7 @@ export const AutocompleteCompanyInput = ({
       createItemLabel="Create %{item}"
       createLabel={translate("crm.misc.start_typing_company")}
       validate={validate}
+      modal={isMobile}
     />
   );
 };
